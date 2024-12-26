@@ -18,7 +18,7 @@ To achieve this functionality, the project is structured into multiple layers, a
 ## Technical Decisions
 
 ### 1. **Swift Package for Core Logic**
-A Swift Package, `ConvenienceCore`, encapsulates all non-UI logic, making it reusable and UI-agnostic. This ensures that the app's business logic, networking, and persistence can be maintained independently of the UI.
+A Swift Package, (ConVenuenceCore) `CVCore`, encapsulates all non-UI logic, making it reusable and UI-agnostic. This ensures that the app's business logic, networking, and persistence can be maintained independently of the UI.
 
 - **Advantages**:
   - Separation of concerns.
@@ -73,9 +73,9 @@ The project is divided into the following layers, each with a defined responsibi
 ## Project Structure
 
 ```plaintext
-ConVenuence/
+convenuence/
 │
-├── ConvenienceCore/            # Swift Package for non-UI logic
+├── CVCore/            # Swift Package for non-UI logic
 │   ├── Networking/
 │   │   ├── VenueAPIClient.swift
 │   │   └── Models/
