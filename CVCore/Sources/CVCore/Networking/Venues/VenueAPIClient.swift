@@ -1,12 +1,5 @@
 import Foundation
 
-enum VenueAPIClientError: Error {
-    case networkError(Error)
-    case invalidResponse
-    case decodingError(Error)
-    case apiError(String)
-}
-
 public protocol VenueAPIClient {
     /**
      Searches for venues based on a query and location.
@@ -57,39 +50,18 @@ class VenueAPIClientImpl: VenueAPIClient {
 
     func searchVenues(request: SearchVenuesRequest) async throws -> SearchVenuesResponse {
         let url = request.url
-        do {
-            return try await apiClient.performRequest(
-                url: url, queryItems: request.queryItems, authorizationHeader: authorizationHeader,
-                responseType: SearchVenuesResponse.self
-            )
-        } catch let error as APIClientError {
-            throw handleAPIClientError(error)
-        }
+        return try await apiClient.performRequest(
+            url: url, queryItems: request.queryItems, authorizationHeader: authorizationHeader,
+            responseType: SearchVenuesResponse.self
+        )
     }
 
     func fetchVenueDetails(request: FetchVenueDetailsRequest) async throws -> FetchVenueDetailsResponse {
         let url = request.url
-        do {
-            return try await apiClient.performRequest(
-                url: url, queryItems: request.queryItems, authorizationHeader: authorizationHeader,
-                responseType: FetchVenueDetailsResponse.self
-            )
-        } catch let error as APIClientError {
-            throw handleAPIClientError(error)
-        }
-    }
-
-    // MARK: - Utility
-
-    private func handleAPIClientError(_ error: APIClientError) -> VenueAPIClientError {
-        switch error {
-        case .networkError(let networkError):
-            return .networkError(networkError)
-        case .invalidResponse:
-            return .invalidResponse
-        case .decodingError(let decodingError):
-            return .decodingError(decodingError)
-        }
+        return try await apiClient.performRequest(
+            url: url, queryItems: request.queryItems, authorizationHeader: authorizationHeader,
+            responseType: FetchVenueDetailsResponse.self
+        )
     }
 }
 
