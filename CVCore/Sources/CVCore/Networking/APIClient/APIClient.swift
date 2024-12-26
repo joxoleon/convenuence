@@ -9,7 +9,7 @@ protocol APIClient {
      - Parameters:
        - url: The URL for the request.
        - queryItems: Optional query items to include in the request URL.
-       - apiKey: The API key used for authorization, sent as a value in the `Authorization` header.
+       - authorizationHeader: The API key used for authorization, sent as a value in the `Authorization` header.
        - responseType: The type of the expected response, conforming to `Decodable`.
      
      - Returns: An instance of the specified `Decodable` type containing the response data.
@@ -21,7 +21,7 @@ protocol APIClient {
     func performRequest<T: Decodable>(
         url: URL,
         queryItems: [URLQueryItem]?,
-        apiKey: String,
+        authorizationHeader: String,
         responseType: T.Type
     ) async throws -> T
 }
@@ -49,29 +49,30 @@ class APIClientImpl: APIClient {
     func performRequest<T: Decodable>(
         url: URL,
         queryItems: [URLQueryItem]?,
-        apiKey: String,
+        authorizationHeader: String,
         responseType: T.Type
     ) async throws -> T {
         var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
         components.queryItems = queryItems
 
         var request = URLRequest(url: components.url!)
-        request.setValue(apiKey, forHTTPHeaderField: "Authorization")
+        request.setValue(authorizationHeader, forHTTPHeaderField: "Authorization")
 
         do {
             let (data, urlResponse) = try await session.data(for: request)
             guard let httpResponse = urlResponse as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                 throw APIClientError.invalidResponse
             }
-            return try JSONDecoder().decode(responseType, from: data)
-        } catch {
-            if let urlError = error as? URLError {
-                throw APIClientError.networkError(urlError)
-            } else if let decodingError = error as? DecodingError {
+            do {
+                return try JSONDecoder().decode(responseType, from: data)
+            } catch let decodingError as DecodingError {
+                print("Failed to decode JSON response: \(String(data: data, encoding: .utf8) ?? "No data")")
                 throw APIClientError.decodingError(decodingError)
-            } else {
-                throw error
             }
+        } catch let urlError as URLError {
+            throw APIClientError.networkError(urlError)
+        } catch {
+            throw error
         }
     }
 }

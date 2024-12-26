@@ -77,11 +77,6 @@ public enum FoursqareDTO {
         public let suffix: String
     }
     
-    // MARK: - VenueDetailsResponse
-    
-    public struct VenueDetailsResponse: Codable {
-        public let venue: VenueDetails
-    }
     
     // MARK: - SearchResponse
     

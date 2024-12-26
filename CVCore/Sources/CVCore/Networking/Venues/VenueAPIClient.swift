@@ -44,13 +44,13 @@ class VenueAPIClientImpl: VenueAPIClient {
     // MARK: - Properties
 
     private let apiClient: APIClient
-    private let apiKey: String
+    private let authorizationHeader: String
 
     // MARK: - Initializers
 
-    init(apiKey: String, session: URLSession = .shared) {
+    init(authorizationHeader: String, session: URLSession = .shared) {
         self.apiClient = APIClientImpl(session: session)
-        self.apiKey = apiKey
+        self.authorizationHeader = authorizationHeader
     }
 
     // MARK: - VenueAPIClient
@@ -59,7 +59,7 @@ class VenueAPIClientImpl: VenueAPIClient {
         let url = request.url
         do {
             return try await apiClient.performRequest(
-                url: url, queryItems: request.queryItems, apiKey: apiKey,
+                url: url, queryItems: request.queryItems, authorizationHeader: authorizationHeader,
                 responseType: SearchVenuesResponse.self
             )
         } catch let error as APIClientError {
@@ -71,7 +71,7 @@ class VenueAPIClientImpl: VenueAPIClient {
         let url = request.url
         do {
             return try await apiClient.performRequest(
-                url: url, queryItems: request.queryItems, apiKey: apiKey,
+                url: url, queryItems: request.queryItems, authorizationHeader: authorizationHeader,
                 responseType: FetchVenueDetailsResponse.self
             )
         } catch let error as APIClientError {
@@ -140,6 +140,4 @@ public struct FetchVenueDetailsRequest {
     }
 }
 
-public struct FetchVenueDetailsResponse: Codable {
-    public let venue: FoursqareDTO.VenueDetails
-}
+public typealias FetchVenueDetailsResponse = FoursqareDTO.VenueDetails
