@@ -32,7 +32,7 @@ public protocol VenueAPIClient {
     func fetchVenueDetails(request: FetchVenueDetailsRequest) async throws -> FetchVenueDetailsResponse
 }
 
-class VenueAPIClientImpl: VenueAPIClient {
+public class VenueAPIClientImpl: VenueAPIClient {
 
     // MARK: - Properties
 
@@ -48,7 +48,7 @@ class VenueAPIClientImpl: VenueAPIClient {
 
     // MARK: - VenueAPIClient
 
-    func searchVenues(request: SearchVenuesRequest) async throws -> SearchVenuesResponse {
+    public func searchVenues(request: SearchVenuesRequest) async throws -> SearchVenuesResponse {
         let url = request.url
         return try await apiClient.performRequest(
             url: url, queryItems: request.queryItems, authorizationHeader: authorizationHeader,
@@ -56,7 +56,7 @@ class VenueAPIClientImpl: VenueAPIClient {
         )
     }
 
-    func fetchVenueDetails(request: FetchVenueDetailsRequest) async throws -> FetchVenueDetailsResponse
+    public func fetchVenueDetails(request: FetchVenueDetailsRequest) async throws -> FetchVenueDetailsResponse
     {
         let url = request.url
         return try await apiClient.performRequest(

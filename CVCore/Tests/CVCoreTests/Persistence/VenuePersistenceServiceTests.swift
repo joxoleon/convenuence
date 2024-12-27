@@ -143,9 +143,10 @@ final class VenuePersistenceServiceTests: XCTestCase {
             )
         )
         let query = "Test Query"
+        let searchRequest = SearchVenuesRequest(query: query, location: (latitude: 0, longitude: 0))
         
         // Act
-        try await venuePersistenceService.saveSearchResults(for: query, venues: [venue])
+        try await venuePersistenceService.saveSearchResults(for: searchRequest, venues: [venue])
         let searchResults = try await searchResultsPersistence.fetchAll().first
         
         // Assert
@@ -166,10 +167,12 @@ final class VenuePersistenceServiceTests: XCTestCase {
             )
         )
         let query = "Test Query"
+        let searchRequest = SearchVenuesRequest(query: query, location: (latitude: 0, longitude: 0))
+        
         try await searchResultsPersistence.save(entity: [query: [venue]])
         
         // Act
-        let searchResults = try await venuePersistenceService.fetchSearchResults(for: query)
+        let searchResults = try await venuePersistenceService.fetchSearchResults(for: searchRequest)
         
         // Assert
         XCTAssertEqual(searchResults, [venue])
