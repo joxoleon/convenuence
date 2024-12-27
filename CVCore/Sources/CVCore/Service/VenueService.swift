@@ -3,65 +3,87 @@ import Foundation
 // MARK: - VenueService Protocol
 
 public protocol VenueService {
-    func searchVenues(request: SearchVenuesRequest) async throws -> [FoursqareDTO.Venue]
-    func getVenueDetails(id: String) async throws -> FoursqareDTO.VenueDetails
-    func getFavorites() async throws -> [FoursqareDTO.Venue]
-    func saveFavorite(_ venue: FoursqareDTO.Venue) async throws
-    func removeFavorite(_ venue: FoursqareDTO.Venue) async throws
-    func isFavorite(_ venue: FoursqareDTO.Venue) async throws -> Bool
+    func searchVenues(request: SearchVenuesRequest) async throws -> [Venue]
+    func getVenueDetails(id: VenueId) async throws -> VenueDetail
+    func getFavorites() async throws -> [Venue]
+    func saveFavorite(venueId: VenueId) async throws
+    func removeFavorite(venueId: VenueId) async throws
+    func isFavorite(id: VenueId) async throws -> Bool
 }
-
-// MARK: - Domain Models
-
 
 // MARK: - VenueService Implementation
 
 public final class VenueServiceImpl: VenueService {
 
-    // Dependencies
+    // MARK: - Dependencies
+    
     private let apiClient: VenueAPIClient
     private let persistenceService: VenuePersistenceService
 
-    // Initializer
+    // MARK: - Initializers
+
     public init(apiClient: VenueAPIClient, persistenceService: VenuePersistenceService) {
         self.apiClient = apiClient
         self.persistenceService = persistenceService
     }
 
     // MARK: - VenueService Methods
+    
+    public func searchVenues(request: SearchVenuesRequest) async throws -> [Venue] {
+        let favoriteIds = try await persistenceService.fetchFavoriteIds()
 
-    public func searchVenues(request: SearchVenuesRequest) async throws -> [FoursqareDTO.Venue] {
-        // Try and fetch data from the cache - a cache invalidation strategy should be implemented in a real-world scenario to avoid stale data
-        // Also this should be paginated, but I'll skip it as it outside of the project scope
-        if let cachedResults = try await persistenceService.fetchSearchResults(for: request) {
-            return cachedResults
-        } else {
-            let response = try await apiClient.searchVenues(request: request)
-            try await persistenceService.saveSearchResults(for: request, venues: response.results)
-            return response.results
+        do {
+            // Try fetching from the network
+            let response: SearchVenuesResponse = try await apiClient.searchVenues(request: request)
+            let venues = response.results.map { Venue(fsdto: $0, isFavorite: favoriteIds.contains($0.id)) }
+            try await persistenceService.saveSearchResults(for: request, venueIds: venues.map { $0.id })
+            return venues
+        } catch {
+            // If network fetch fails or it isn't available, try fetching from the persistence layer
+            if let venueIds = try await persistenceService.fetchSearchResults(for: request) {
+                let venues = try await persistenceService.fetchVenues(by: venueIds)
+                return venues.map { Venue(id: $0.id, name: $0.name, isFavorite: favoriteIds.contains($0.id)) }
+            } else {
+                throw error
+            }
         }
     }
 
-    public func getVenueDetails(id: String) async throws -> FoursqareDTO.VenueDetails {
-        // Fetch details from the API
-        // In my opinion, these should be cached as well, but I'll skip it as it outside of the project scope
-        let request = FetchVenueDetailsRequest(id: id)
-        return try await apiClient.fetchVenueDetails(request: request)
+    public func getVenueDetails(id: VenueId) async throws -> VenueDetail {
+        let favoriteIds = try await persistenceService.fetchFavoriteIds()
+        do {
+            // Try fetching from the network
+            let response: FetchVenueDetailsResponse = try await apiClient.fetchVenueDetails(request: FetchVenueDetailsRequest(id: id))
+            let isFavorite = favoriteIds.contains(response.id)
+            // TODO: Handle fetch photo URLs
+            let photoUrls: [URL] = []
+            let venueDetail = VenueDetail(fsdto: response, isFavorite: isFavorite, photoUrls: photoUrls)
+            try await persistenceService.saveVenueDetail(venueDetail)
+            return venueDetail
+        } catch {
+            // If network fetch fails for any reason, try fetching from persistence layer
+            if let venueDetail = try await persistenceService.fetchVenueDetail(by: id) {
+                return venueDetail
+            } else {
+                throw error
+            }
+        }
     }
 
-    public func getFavorites() async throws -> [FoursqareDTO.Venue] {
-        return try await persistenceService.fetchFavorites()
+    public func getFavorites() async throws -> [Venue] {
+        return try await persistenceService.fetchFavoriteVenues()
     }
 
-    public func saveFavorite(_ venue: FoursqareDTO.Venue) async throws {
-        try await persistenceService.saveFavorite(venue)
+    public func saveFavorite(venueId: VenueId) async throws {
+        try await persistenceService.saveFavorite(venueId: venueId)
     }
 
-    public func removeFavorite(_ venue: FoursqareDTO.Venue) async throws {
-        try await persistenceService.removeFavorite(venue)
+    public func removeFavorite(venueId: VenueId) async throws {
+        try await persistenceService.removeFavorite(venueId: venueId)
     }
 
-    public func isFavorite(_ venue: FoursqareDTO.Venue) async throws -> Bool {
-        return try await persistenceService.isFavorite(venue)
+    public func isFavorite(id: VenueId) async throws -> Bool {
+        let favoriteIds = try await persistenceService.fetchFavoriteIds()
+        return favoriteIds.contains(id)
     }
 }
