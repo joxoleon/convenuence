@@ -56,7 +56,8 @@ class VenueAPIClientImpl: VenueAPIClient {
         )
     }
 
-    func fetchVenueDetails(request: FetchVenueDetailsRequest) async throws -> FetchVenueDetailsResponse {
+    func fetchVenueDetails(request: FetchVenueDetailsRequest) async throws -> FetchVenueDetailsResponse
+    {
         let url = request.url
         return try await apiClient.performRequest(
             url: url, queryItems: request.queryItems, authorizationHeader: authorizationHeader,
@@ -76,7 +77,13 @@ public struct SearchVenuesRequest {
     let limit: Int
     let offset: Int
 
-    public init(query: String, location: (latitude: Double, longitude: Double), radius: Int = 3000, limit: Int = 50, offset: Int = 0) {
+    public init(
+        query: String,
+        location: (latitude: Double, longitude: Double),
+        radius: Int = 3000,
+        limit: Int = 50,
+        offset: Int = 0
+    ) {
         self.query = query
         self.location = location
         self.radius = radius
@@ -88,7 +95,7 @@ public struct SearchVenuesRequest {
         var components = URLComponents(string: "https://api.foursquare.com/v3/places/search")!
         components.queryItems = [
             URLQueryItem(name: "query", value: query),
-            URLQueryItem(name: "ll", value: "\(location.latitude),\(location.longitude)")
+            URLQueryItem(name: "ll", value: "\(location.latitude),\(location.longitude)"),
         ]
         return components.url!
     }
