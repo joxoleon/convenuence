@@ -70,10 +70,18 @@ class VenueAPIClientImpl: VenueAPIClient {
 public struct SearchVenuesRequest {
     let query: String
     let location: (latitude: Double, longitude: Double)
+    let radius: Int
+    // Add limit and offset properties for pagination purposes
+    // For now I won't implement that feature, but it can be added later
+    let limit: Int
+    let offset: Int
 
-    public init(query: String, location: (latitude: Double, longitude: Double)) {
+    public init(query: String, location: (latitude: Double, longitude: Double), radius: Int = 3000, limit: Int = 50, offset: Int = 0) {
         self.query = query
         self.location = location
+        self.radius = radius
+        self.limit = limit
+        self.offset = offset
     }
 
     var url: URL {
