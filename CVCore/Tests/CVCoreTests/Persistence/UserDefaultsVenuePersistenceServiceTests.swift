@@ -19,25 +19,32 @@ final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
     }
     
     func testSaveAndFetchFavorite() async throws {
+        // Arrange
         let venueId = "venue1"
         
+        // Act
         try await venuePersistenceService.saveFavorite(venueId: venueId)
         let favoriteIds = try await venuePersistenceService.fetchFavoriteIds()
         
+        // Assert
         XCTAssertTrue(favoriteIds.contains(venueId))
     }
     
     func testRemoveFavorite() async throws {
+        // Arrange
         let venueId = "venue1"
         
+        // Act
         try await venuePersistenceService.saveFavorite(venueId: venueId)
         try await venuePersistenceService.removeFavorite(venueId: venueId)
         let favoriteIds = try await venuePersistenceService.fetchFavoriteIds()
         
+        // Assert
         XCTAssertFalse(favoriteIds.contains(venueId))
     }
 
     func testFavoritesComplex() async throws {
+        // Arrange
         let venue1 = Venue(id: "venue1", name: "Venue 1", isFavorite: false)
         let venue2 = Venue(id: "venue2", name: "Venue 2", isFavorite: false)
         let venue3 = Venue(id: "venue3", name: "Venue 3", isFavorite: false)
@@ -70,6 +77,7 @@ final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
     }
     
     func testFetchFavoriteVenues() async throws {
+        // Arrange
         let venue1 = Venue(id: "venue1", name: "Venue 1", isFavorite: true)
         let venue2 = Venue(id: "venue2", name: "Venue 2", isFavorite: true)
         
@@ -78,78 +86,98 @@ final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
         try await venuePersistenceService.saveFavorite(venueId: venue1.id)
         try await venuePersistenceService.saveFavorite(venueId: venue2.id)
         
+        // Act
         let favoriteVenues = try await venuePersistenceService.fetchFavoriteVenues()
         print(favoriteVenues)
         
+        // Assert
         XCTAssertEqual(favoriteVenues.count, 2)
         XCTAssertTrue(favoriteVenues.contains(venue1))
         XCTAssertTrue(favoriteVenues.contains(venue2))
     }
     
     func testSaveAndFetchVenueDetail() async throws {
+        // Arrange
         let venueDetail = VenueDetail(id: "venue1", name: "Venue 1", description: "Description", isFavorite: true, photoUrls: [])
         
+        // Act
         try await venuePersistenceService.saveVenueDetail(venueDetail)
         let fetchedDetail = try await venuePersistenceService.fetchVenueDetail(by: venueDetail.id)
         
+        // Assert
         XCTAssertEqual(fetchedDetail, venueDetail)
     }
     
     func testFetchVenueDetails() async throws {
+        // Arrange
         let venueDetail1 = VenueDetail(id: "venue1", name: "Venue 1", description: "Description 1", isFavorite: true, photoUrls: [])
         let venueDetail2 = VenueDetail(id: "venue2", name: "Venue 2", description: "Description 2", isFavorite: true, photoUrls: [])
         
         try await venuePersistenceService.saveVenueDetail(venueDetail1)
         try await venuePersistenceService.saveVenueDetail(venueDetail2)
         
+        // Act
         let fetchedDetails = try await venuePersistenceService.fetchVenueDetails(by: [venueDetail1.id, venueDetail2.id])
         
+        // Assert
         XCTAssertEqual(fetchedDetails.count, 2)
         XCTAssertTrue(fetchedDetails.contains(venueDetail1))
         XCTAssertTrue(fetchedDetails.contains(venueDetail2))
     }
     
     func testSaveAndFetchVenue() async throws {
+        // Arrange
         let venue = Venue(id: "venue1", name: "Venue 1", isFavorite: true)
         
+        // Act
         try await venuePersistenceService.saveVenue(venue)
         let fetchedVenue = try await venuePersistenceService.fetchVenue(by: venue.id)
         
+        // Assert
         XCTAssertEqual(fetchedVenue, venue)
     }
     
     func testFetchVenues() async throws {
+        // Arrange
         let venue1 = Venue(id: "venue1", name: "Venue 1", isFavorite: true)
         let venue2 = Venue(id: "venue2", name: "Venue 2", isFavorite: true)
         
         try await venuePersistenceService.saveVenue(venue1)
         try await venuePersistenceService.saveVenue(venue2)
         
+        // Act
         let fetchedVenues = try await venuePersistenceService.fetchVenues(by: [venue1.id, venue2.id])
         
+        // Assert
         XCTAssertEqual(fetchedVenues.count, 2)
         XCTAssertTrue(fetchedVenues.contains(venue1))
         XCTAssertTrue(fetchedVenues.contains(venue2))
     }
     
     func testSaveAndFetchSearchResults() async throws {
+        // Arrange
         let request = SearchVenuesRequest(query: "venue2", location: (latitude: 0, longitude: 0))
         let venueIds = ["venue1", "venue2"]
         
+        // Act
         try await venuePersistenceService.saveSearchResults(for: request, venueIds: venueIds)
         let fetchedResults = try await venuePersistenceService.fetchSearchResults(for: request)
         
+        // Assert
         XCTAssertEqual(fetchedResults, venueIds)
     }
 
     func testSaveAndFetchMultipleVenues() async throws {
+        // Arrange
         let venue1 = Venue(id: "venue1", name: "Venue 1", isFavorite: true)
         let venue2 = Venue(id: "venue2", name: "Venue 2", isFavorite: true)
         let venues = [venue1, venue2]
         
+        // Act
         try await venuePersistenceService.saveVenues(venues)
         let fetchedVenues = try await venuePersistenceService.fetchVenues(by: [venue1.id, venue2.id])
         
+        // Assert
         XCTAssertEqual(fetchedVenues.count, 2)
         XCTAssertTrue(fetchedVenues.contains(venue1))
         XCTAssertTrue(fetchedVenues.contains(venue2))
