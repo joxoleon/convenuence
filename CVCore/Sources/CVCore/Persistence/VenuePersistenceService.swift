@@ -2,7 +2,13 @@ import Foundation
 
 // MARK: - VenuePersistenceService Protocol
 
-/// A protocol defining the operations for persisting venue-related data.
+/** 
+
+A protocol defining the operations for persisting venue-related data.
+It should definitely be implemented by a concrete class persisting it via CoreData or SQLite.
+I will probably only do it in UserDefaults because I don't want to was too much time on this project.
+But the API is designed in a way that it can be easily extended to support other persistence mechanisms.
+*/
 public protocol VenuePersistenceService {
 
     // MARK: - Favorites Operations

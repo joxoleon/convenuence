@@ -1,7 +1,7 @@
 import XCTest
 @testable import CVCore
 
-final class VenuePersistenceServiceTests: XCTestCase {
+final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
     
     var venuePersistenceService: UserDefaultsVenuePersistenceService!
     let userDefaults = UserDefaults(suiteName: "TestDefaults")!
@@ -9,7 +9,7 @@ final class VenuePersistenceServiceTests: XCTestCase {
     override func setUp() {
         super.setUp()
         userDefaults.removePersistentDomain(forName: "TestDefaults")
-        venuePersistenceService = UserDefaultsVenuePersistenceService()
+        venuePersistenceService = UserDefaultsVenuePersistenceService(userDefaults: userDefaults)
     }
     
     override func tearDown() {
@@ -36,6 +36,38 @@ final class VenuePersistenceServiceTests: XCTestCase {
         
         XCTAssertFalse(favoriteIds.contains(venueId))
     }
+
+    func testFavoritesComplex() async throws {
+        let venue1 = Venue(id: "venue1", name: "Venue 1", isFavorite: false)
+        let venue2 = Venue(id: "venue2", name: "Venue 2", isFavorite: false)
+        let venue3 = Venue(id: "venue3", name: "Venue 3", isFavorite: false)
+
+        try await venuePersistenceService.saveVenues([venue1, venue2, venue3])
+
+        // Set 1 and 3 as favorites
+        try await venuePersistenceService.saveFavorite(venueId: venue1.id)
+        try await venuePersistenceService.saveFavorite(venueId: venue3.id)
+
+        // Assert that 1 and 3 are favorites and two isn't
+        var v1 = try await venuePersistenceService.fetchVenue(by: venue1.id)
+        var v2 = try await venuePersistenceService.fetchVenue(by: venue2.id)
+        var v3 = try await venuePersistenceService.fetchVenue(by: venue3.id)
+        XCTAssertTrue(v1?.isFavorite == true)
+        XCTAssertTrue(v2?.isFavorite == false)
+        XCTAssertTrue(v3?.isFavorite == true)
+
+        // Remove 1 from favorites
+        try await venuePersistenceService.removeFavorite(venueId: venue1.id)
+
+        // Assert that 1 is no longer a favorite
+        v1 = try await venuePersistenceService.fetchVenue(by: venue1.id)
+        v2 = try await venuePersistenceService.fetchVenue(by: venue2.id)
+        v3 = try await venuePersistenceService.fetchVenue(by: venue3.id)
+        XCTAssertTrue(v1?.isFavorite == false)
+        XCTAssertTrue(v2?.isFavorite == false)
+        XCTAssertTrue(v3?.isFavorite == true)
+
+    }
     
     func testFetchFavoriteVenues() async throws {
         let venue1 = Venue(id: "venue1", name: "Venue 1", isFavorite: true)
@@ -47,6 +79,7 @@ final class VenuePersistenceServiceTests: XCTestCase {
         try await venuePersistenceService.saveFavorite(venueId: venue2.id)
         
         let favoriteVenues = try await venuePersistenceService.fetchFavoriteVenues()
+        print(favoriteVenues)
         
         XCTAssertEqual(favoriteVenues.count, 2)
         XCTAssertTrue(favoriteVenues.contains(venue1))

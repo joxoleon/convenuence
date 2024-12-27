@@ -5,7 +5,7 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
     
     // MARK: - Properties
     
-    private let userDefaults = UserDefaults.standard
+    private let userDefaults: UserDefaults
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     
@@ -15,20 +15,34 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
     private let searchResultsKey = "searchResults"
     private let venueKeyPrefix = "venue_"
     
+    // MARK: - Initializer
+    
+    public init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+    }
+    
     // MARK: - Favorites Operations
     
     public func saveFavorite(venueId: VenueId) async throws {
         var favoriteIds = try await fetchFavoriteIds()
-        if !favoriteIds.contains(venueId) {
+        if (!favoriteIds.contains(venueId)) {
             favoriteIds.append(venueId)
             try saveFavoriteIds(favoriteIds)
         }
+
+        // These updates should be done in a single transaction
+        try updateVenueDetailsFavoriteFlag(venueId: venueId, isFavorite: true)
+        try updateVenueFavoriteFlag(venueId: venueId, isFavorite: true)
     }
     
     public func removeFavorite(venueId: VenueId) async throws {
         var favoriteIds = try await fetchFavoriteIds()
         favoriteIds.removeAll { $0 == venueId }
         try saveFavoriteIds(favoriteIds)
+
+        // These updates should be done in a single transaction
+        try updateVenueDetailsFavoriteFlag(venueId: venueId, isFavorite: false)
+        try updateVenueFavoriteFlag(venueId: venueId, isFavorite: false)
     }
     
     public func fetchFavoriteIds() async throws -> [VenueId] {
@@ -94,7 +108,6 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
 
     public func saveVenues(_ venues: [Venue]) async throws {
         let encoder = JSONEncoder()
-        let userDefaults = UserDefaults.standard
 
         // Fetch existing venues
         let allVenues = try fetchAllVenues() + venues
@@ -160,6 +173,26 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
     }
     
     // MARK: - Private Helpers
+
+    private func updateVenueDetailsFavoriteFlag(venueId: VenueId, isFavorite: Bool) throws {
+        guard let data = userDefaults.data(forKey: "\(venueDetailsKeyPrefix)\(venueId)"),
+              let vd = try? decoder.decode(VenueDetail.self, from: data) else {
+            return
+        }
+        let venueDetail = VenueDetail(id: venueId, name: vd.name, description: vd.description, isFavorite: isFavorite, photoUrls: vd.photoUrls)
+        let newData = try encoder.encode(venueDetail)
+        userDefaults.set(newData, forKey: "\(venueDetailsKeyPrefix)\(venueId)")
+    }
+    
+    private func updateVenueFavoriteFlag(venueId: VenueId, isFavorite: Bool) throws {
+        guard let data = userDefaults.data(forKey: "\(venueKeyPrefix)\(venueId)"),
+              let venue = try? decoder.decode(Venue.self, from: data) else {
+            return
+        }
+        let newVenue = Venue(id: venueId, name: venue.name, isFavorite: isFavorite)
+        let newData = try encoder.encode(newVenue)
+        userDefaults.set(newData, forKey: "\(venueKeyPrefix)\(venueId)")
+    }
     
     private func saveFavoriteIds(_ favoriteIds: [VenueId]) throws {
         userDefaults.set(favoriteIds, forKey: favoritesKey)

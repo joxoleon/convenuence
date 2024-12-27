@@ -1,8 +1,8 @@
 import Foundation
 
-// MARK: - VenueService Protocol
+// MARK: - VenueRepositoryService Protocol
 
-public protocol VenueService {
+public protocol VenueRepositoryService {
     func searchVenues(request: SearchVenuesRequest) async throws -> [Venue]
     func getVenueDetails(id: VenueId) async throws -> VenueDetail
     func getFavorites() async throws -> [Venue]
@@ -11,9 +11,9 @@ public protocol VenueService {
     func isFavorite(id: VenueId) async throws -> Bool
 }
 
-// MARK: - VenueService Implementation
+// MARK: - VenueRepositoryService Implementation
 
-public final class VenueServiceImpl: VenueService {
+public final class VenueRepositoryServiceImpl: VenueRepositoryService {
 
     // MARK: - Dependencies
     
@@ -27,7 +27,7 @@ public final class VenueServiceImpl: VenueService {
         self.persistenceService = persistenceService
     }
 
-    // MARK: - VenueService Methods
+    // MARK: - VenueRepositoryService Methods
     
     public func searchVenues(request: SearchVenuesRequest) async throws -> [Venue] {
         let favoriteIds = try await persistenceService.fetchFavoriteIds()
@@ -36,7 +36,10 @@ public final class VenueServiceImpl: VenueService {
             // Try fetching from the network
             let response: SearchVenuesResponse = try await apiClient.searchVenues(request: request)
             let venues = response.results.map { Venue(fsdto: $0, isFavorite: favoriteIds.contains($0.id)) }
+            // Persist venue instances and search results
+            try await persistenceService.saveVenues(venues)
             try await persistenceService.saveSearchResults(for: request, venueIds: venues.map { $0.id })
+            // Return the fetched venues
             return venues
         } catch {
             // If network fetch fails or it isn't available, try fetching from the persistence layer
