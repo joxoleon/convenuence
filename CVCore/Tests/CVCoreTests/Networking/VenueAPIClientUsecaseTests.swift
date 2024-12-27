@@ -23,25 +23,28 @@ class VenueAPIClientUsecaseTests: XCTestCase {
         super.tearDown()
     }
 
-    func testSearchVenuesRealAPI() async throws {
-        // Perform the real API call
-        let request = SearchVenuesRequest(query: "coffee", location: (latitude: 40.748817, longitude: -73.985428))
-        let response = try await apiClient.searchVenues(request: request)
+    // These tests are intentionally commented out as they make real API calls and require a valid API key.
+    // And because Apple/Swift doesn't allow "IGNORED" tests to exist in the codebase... Thank you Apple!
+    
+    // func testSearchVenuesRealAPI() async throws {
+    //     // Perform the real API call
+    //     let request = SearchVenuesRequest(query: "coffee", location: (latitude: 40.748817, longitude: -73.985428))
+    //     let response = try await apiClient.searchVenues(request: request)
 
-        // Assertions
-        XCTAssertGreaterThan(response.results.count, 0)
-        XCTAssertNotNil(response.results.first?.id)
-        XCTAssertNotNil(response.results.first?.name)
-    }
+    //     // Assertions
+    //     XCTAssertGreaterThan(response.results.count, 0)
+    //     XCTAssertNotNil(response.results.first?.id)
+    //     XCTAssertNotNil(response.results.first?.name)
+    // }
 
-    func testFetchVenueDetailsRealAPI() async throws {
-        // Perform the real API call
-        let request = FetchVenueDetailsRequest(id: "598ee2aa2955134db1635b30")
-        let response = try await apiClient.fetchVenueDetails(request: request)
+    // func testFetchVenueDetailsRealAPI() async throws {
+    //     // Perform the real API call
+    //     let request = FetchVenueDetailsRequest(id: "598ee2aa2955134db1635b30")
+    //     let response = try await apiClient.fetchVenueDetails(request: request)
 
-        // Assertions
-        XCTAssertNotNil(response.id)
-        XCTAssertNotNil(response.name)
-        XCTAssertNotNil(response.location.address)
-    }
+    //     // Assertions
+    //     XCTAssertNotNil(response.id)
+    //     XCTAssertNotNil(response.name)
+    //     XCTAssertNotNil(response.location.address)
+    // }
 }
