@@ -5,7 +5,7 @@ public enum FoursqareDTO {
     
     // MARK: - Venue
     
-    public struct Venue: Codable {
+    public struct Venue: Codable, Equatable {
         public let id: String
         public let name: String
         public let location: Location
@@ -19,7 +19,7 @@ public enum FoursqareDTO {
     
     // MARK: - Location
     
-    public struct Location: Codable {
+    public struct Location: Codable, Equatable {
         public let address: String
         public let formatted_address: String
         public let locality: String
@@ -30,7 +30,7 @@ public enum FoursqareDTO {
     
     // MARK: - VenueDetails
     
-    public struct VenueDetails: Codable {
+    public struct VenueDetails: Codable, Equatable {
         public let id: String
         public let name: String
         public let description: String?
@@ -50,7 +50,7 @@ public enum FoursqareDTO {
     
     // MARK: - Category
     
-    public struct Category: Codable {
+    public struct Category: Codable, Equatable {
         public let id: Int
         public let name: String
         public let short_name: String
@@ -59,20 +59,20 @@ public enum FoursqareDTO {
     
     // MARK: - Geocodes
     
-    public struct Geocodes: Codable {
+    public struct Geocodes: Codable, Equatable {
         public let main: Coordinate
     }
     
     // MARK: - Coordinate
     
-    public struct Coordinate: Codable {
+    public struct Coordinate: Codable, Equatable {
         public let latitude: Double
         public let longitude: Double
     }
     
     // MARK: - Icon
     
-    public struct Icon: Codable {
+    public struct Icon: Codable, Equatable {
         public let prefix: String
         public let suffix: String
     }
