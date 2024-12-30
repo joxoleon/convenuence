@@ -6,14 +6,14 @@ struct VenueListView: View {
     let venues: [Venue]
     let currentLocation: CLLocation
     weak var favoriteRepositoryDelegate: FavoriteRepositoryDelegate?
-    
+
     init(venues: [Venue], currentLocation: CLLocation, favoriteRepositoryDelegate: FavoriteRepositoryDelegate?) {
         self.venues = venues
         self.currentLocation = currentLocation
         self.favoriteRepositoryDelegate = favoriteRepositoryDelegate
     }
 
-    // I know that the API can sort this, but in case of offline acces, I still want to display the correct distance and ordering
+    // Sort venues by distance for offline access
     var sortedVenues: [Venue] {
         venues.sorted { (v2, v1) -> Bool in
             v1.distance(from: currentLocation) > v2.distance(from: currentLocation)
@@ -21,15 +21,32 @@ struct VenueListView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                ForEach(sortedVenues, id: \ .id) { venue in
-                    VenueCellView(venue: venue, currentLocation: currentLocation, favoriteRepositoryDelegate: favoriteRepositoryDelegate)
+        if sortedVenues.isEmpty {
+            VStack {
+                Spacer()
+                Text("No Search Results")
+                    .font(.title3)
+                    .foregroundColor(.accentBlue)
+                    .multilineTextAlignment(.center)
+                    .opacity(0.6)
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure centering
+        } else {
+            ScrollView {
+                VStack(spacing: 16) {
+                    ForEach(sortedVenues, id: \.id) { venue in
+                        VenueCellView(
+                            venue: venue,
+                            currentLocation: currentLocation,
+                            favoriteRepositoryDelegate: favoriteRepositoryDelegate
+                        )
                         .padding(.horizontal)
+                    }
                 }
+                .padding(.top)
             }
         }
-        .padding(.top)
     }
 }
 
@@ -40,11 +57,7 @@ struct VenueListView_Previews: PreviewProvider {
                 .ignoresSafeArea()
 
             VenueListView(
-                venues: [
-                    Venue.sample1,
-                    Venue.sample2,
-                    Venue.sample3
-                ],
+                venues: [],
                 currentLocation: CLLocation(latitude: 40.7128, longitude: -74.0060),
                 favoriteRepositoryDelegate: nil
             )

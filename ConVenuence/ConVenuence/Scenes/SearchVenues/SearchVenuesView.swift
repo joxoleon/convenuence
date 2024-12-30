@@ -24,26 +24,40 @@ struct SearchVenuesView: View {
             .background(RoundedRectangle(cornerRadius: 8).fill(Color(.systemGray6)))
             .padding([.horizontal, .top])
             .frame(maxWidth: .infinity) // Ensure it spans the entire width
-            .zIndex(1)
 
-            ZStack(alignment: .top) {
+            ZStack {
                 if viewModel.isLoading {
-                    ProgressView()
-                        .padding(.top)
+                    CenteredProgressView()
                 } else if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .foregroundColor(.red)
                         .padding()
                 } else {
-                    ScrollView {
-                        VenueListView(venues: viewModel.venues, currentLocation: viewModel.currentLocation, favoriteRepositoryDelegate: viewModel)
-                    }
-                    .padding(.top, 8)
+                    VenueListView(
+                        venues: viewModel.venues,
+                        currentLocation: viewModel.currentLocation,
+                        favoriteRepositoryDelegate: viewModel
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity) // Fill available space
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Fix alignment to prevent movement
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Prevent content shifting
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Ensure everything remains at the top
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Keep everything pinned to the top
+    }
+}
+
+// MARK: - Custom Progress View
+struct CenteredProgressView: View {
+    var body: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+                .scaleEffect(1.5) // Make it slightly larger
+                .tint(.accentBlue) // Set color to accentBlue
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure centering
     }
 }
 

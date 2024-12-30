@@ -5,6 +5,7 @@ import CVCore
 
 @MainActor
 class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
+    
     // MARK: - Bindable Properties
 
     @Published var searchQuery: String = "" {
@@ -31,7 +32,7 @@ class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
     init(
         venueRepositoryService: VenueRepositoryService,
         userLocationService: UserLocationService,
-        debounceInterval: TimeInterval = 0.75
+        debounceInterval: TimeInterval = 0.5
     ) {
         self.venueRepositoryService = venueRepositoryService
         self.userLocationService = userLocationService
