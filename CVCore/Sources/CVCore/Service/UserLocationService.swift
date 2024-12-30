@@ -15,7 +15,6 @@ public final class UserLocationServiceImpl: NSObject, UserLocationService, CLLoc
     public private(set) var currentLocation: CLLocation
     private let locationManager: CLLocationManager
     private let defaultLocation = CLLocation(latitude: 44.8191, longitude: 20.4154) // New Belgrade
-    private var isUpdating: Bool = false
     private var updateTimer: Timer?
 
     // MARK: - Initializer
@@ -25,74 +24,55 @@ public final class UserLocationServiceImpl: NSObject, UserLocationService, CLLoc
         super.init()
         self.locationManager.delegate = self
         self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        self.startUpdatingLocation() // Perform initial location fetch
+        requestAuthorization()
     }
     
     // MARK: - UserLocationService Methods
     public func startUpdatingLocation() {
-        guard !isUpdating else { return }
-        isUpdating = true
-        handleAuthorization()
-        
-        // Start timer to fetch location every 10 minutes
         updateTimer = Timer.scheduledTimer(withTimeInterval: 600, repeats: true) { [weak self] _ in
-            self?.fetchLocationPeriodically()
+            self?.updateLocation()
         }
+        updateLocation() // Immediate update on start
     }
     
     public func stopUpdatingLocation() {
-        locationManager.stopUpdatingLocation()
         updateTimer?.invalidate()
         updateTimer = nil
-        isUpdating = false
     }
     
     // MARK: - CLLocationManagerDelegate Methods
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
-            currentLocation = location // Cache the latest location
+            currentLocation = location
             print("Updated location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
         }
-        locationManager.stopUpdatingLocation() // Stop location updates after receiving
+        locationManager.stopUpdatingLocation()
     }
     
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location update failed: \(error)")
+        print("Failed to fetch location: \(error.localizedDescription)")
+        currentLocation = defaultLocation
     }
     
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        handleAuthorization()
+        updateLocation()
     }
     
     // MARK: - Private Methods
-    private func handleAuthorization() {
+    private func requestAuthorization() {
         let status = locationManager.authorizationStatus
-        
-        switch status {
-        case .authorizedWhenInUse, .authorizedAlways:
-            locationManager.startUpdatingLocation()
-        case .notDetermined:
+        if status == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
-        case .denied, .restricted:
-            print("Location access denied or restricted, using default location.")
-            currentLocation = defaultLocation
-        @unknown default:
-            print("Unknown authorization status, using default location.")
-            currentLocation = defaultLocation
         }
     }
     
-    private func fetchLocationPeriodically() {
-        // Ensure authorization before fetching location
+    private func updateLocation() {
         let status = locationManager.authorizationStatus
-        switch status {
-        case .authorizedWhenInUse, .authorizedAlways:
+        if status == .authorizedWhenInUse || status == .authorizedAlways {
             locationManager.startUpdatingLocation()
-        case .denied, .restricted:
-            print("Periodic update fallback to default location.")
+        } else {
+            print("Location access not authorized. Falling back to default location.")
             currentLocation = defaultLocation
-        default:
-            break
         }
     }
 }
