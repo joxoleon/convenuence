@@ -86,3 +86,187 @@ public enum FoursqareDTO {
         public let results: [Venue]
     }
 }
+
+
+// MARK: - Public extensions for sample data
+
+extension FoursqareDTO.Venue {
+    static var sample1: FoursqareDTO.Venue = {
+        return FoursqareDTO.Venue(
+            id: "1",
+            name: "Coffee Shop",
+            location: FoursqareDTO.Location(
+                address: "123 Main St",
+                formatted_address: "123 Main St, New York, NY 10001",
+                locality: "New York",
+                postcode: "10001",
+                region: "New York",
+                country: "US"
+            ),
+            categories: [
+                FoursqareDTO.Category(
+                    id: 13064,
+                    name: "Pizzeria",
+                    short_name: "Pizza",
+                    icon: FoursqareDTO.Icon(
+                        prefix: "https://ss3.4sqi.net/img/categories_v2/food/pizza_",
+                        suffix: ".png"
+                    )
+                )
+            ]
+        )
+    }()
+
+    static var sample2: FoursqareDTO.Venue = {
+        return FoursqareDTO.Venue(
+            id: "2",
+            name: "Burger Bar",
+            location: FoursqareDTO.Location(
+                address: "456 Main St",
+                formatted_address: "456 Main St, New York, NY 10001",
+                locality: "New York",
+                postcode: "10001",
+                region: "New York",
+                country: "US"
+            ),
+            categories: [
+                FoursqareDTO.Category(
+                    id: 13064,
+                    name: "Burger Joint",
+                    short_name: "Burger",
+                    icon: FoursqareDTO.Icon(
+                        prefix: "https://ss3.4sqi.net/img/categories_v2/food/burger_",
+                        suffix: ".png"
+                    )
+                )
+            ]
+        )
+    }()
+
+    static var sample3: FoursqareDTO.Venue = {
+        return FoursqareDTO.Venue(
+            id: "3",
+            name: "Pizza Bar",
+            location: FoursqareDTO.Location(
+                address: "789 Main St",
+                formatted_address: "789 Main St, New York, NY 10001",
+                locality: "New York",
+                postcode: "10001",
+                region: "New York",
+                country: "US"
+            ),
+            categories: [
+                FoursqareDTO.Category(
+                    id: 13064,
+                    name: "Pizzeria",
+                    short_name: "Pizza",
+                    icon: FoursqareDTO.Icon(
+                        prefix: "https://ss3.4sqi.net/img/categories_v2/food/pizza_",
+                        suffix: ".png"
+                    )
+                )
+            ]
+        )
+    }()
+}
+
+extension FoursqareDTO.VenueDetails {
+    static var sample1: FoursqareDTO.VenueDetails = {
+        return FoursqareDTO.VenueDetails(
+            id: "1",
+            name: "Pizza Bar",
+            description: "The best pizza in town",
+            location: FoursqareDTO.Location(
+                address: "Bulevar Mihajla Pupina 165v",
+                formatted_address: "Bulevar Mihajla Pupina 165v (Bulevar umetnosti), 11070 Београд",
+                locality: "Београд",
+                postcode: "11070",
+                region: "Central Serbia",
+                country: "RS"
+            ),
+            categories: [
+                FoursqareDTO.Category(
+                    id: 13064,
+                    name: "Pizzeria",
+                    short_name: "Pizza",
+                    icon: FoursqareDTO.Icon(
+                        prefix: "https://ss3.4sqi.net/img/categories_v2/food/pizza_",
+                        suffix: ".png"
+                    )
+                )
+            ],
+            geocodes: FoursqareDTO.Geocodes(
+                main: FoursqareDTO.Coordinate(
+                    latitude: 44.821935,
+                    longitude: 20.416514
+                )
+            )
+        )
+    }()
+
+    static var sample2: FoursqareDTO.VenueDetails = {
+        return FoursqareDTO.VenueDetails(
+            id: "2",
+            name: "Burger Bar",
+            description: "The best burgers in town",
+            location: FoursqareDTO.Location(
+                address: "Bulevar Mihajla Pupina 165v",
+                formatted_address: "Bulevar Mihajla Pupina 165v (Bulevar umetnosti), 11070 Београд",
+                locality: "Београд",
+                postcode: "11070",
+                region: "Central Serbia",
+                country: "RS"
+            ),
+            categories: [
+                FoursqareDTO.Category(
+                    id: 13064,
+                    name: "Burger Joint",
+                    short_name: "Burger",
+                    icon: FoursqareDTO.Icon(
+                        prefix: "https://ss3.4sqi.net/img/categories_v2/food/burger_",
+                        suffix: ".png"
+                    )
+                )
+            ],
+            geocodes: FoursqareDTO.Geocodes(
+                main: FoursqareDTO.Coordinate(
+                    latitude: 44.821935,
+                    longitude: 20.416514
+                )
+            )
+        )
+    }()
+
+    static var sample3: FoursqareDTO.VenueDetails = {
+        return FoursqareDTO.VenueDetails(
+            id: "3",
+            name: "Coffee Shop",
+            description: "The best coffee in town",
+            location: FoursqareDTO.Location(
+                address: "Bulevar Mihajla Pupina 165v",
+                formatted_address: "Bulevar Mihajla Pupina 165v (Bulevar umetnosti), 11070 Београд",
+                locality: "Београд",
+                postcode: "11070",
+                region: "Central Serbia",
+                country: "RS"
+            ),
+            categories: [
+                FoursqareDTO.Category(
+                    id: 13064,
+                    name: "Coffee Shop",
+                    short_name: "Coffee",
+                    icon: FoursqareDTO.Icon(
+                        prefix: "https://ss3.4sqi.net/img/categories_v2/food/coffeeshop_",
+                        suffix: ".png"
+                    )
+                )
+            ],
+            geocodes: FoursqareDTO.Geocodes(
+                main: FoursqareDTO.Coordinate(
+                    latitude: 44.821935,
+                    longitude: 20.416514
+                )
+            )
+        )
+    }()
+}

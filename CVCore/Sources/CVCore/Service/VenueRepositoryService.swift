@@ -45,7 +45,7 @@ public final class VenueRepositoryServiceImpl: VenueRepositoryService {
             // If network fetch fails or it isn't available, try fetching from the persistence layer
             if let venueIds = try await persistenceService.fetchSearchResults(for: request) {
                 let venues = try await persistenceService.fetchVenues(by: venueIds)
-                return venues.map { Venue(id: $0.id, name: $0.name, isFavorite: favoriteIds.contains($0.id), categoryIconUrl: $0.categoryIconUrl) }
+                return venues.map { Venue(venue: $0, isFavorite: favoriteIds.contains($0.id)) }
             } else {
                 throw error
             }
@@ -58,9 +58,8 @@ public final class VenueRepositoryServiceImpl: VenueRepositoryService {
             // Try fetching from the network
             let response: FetchVenueDetailsResponse = try await apiClient.fetchVenueDetails(request: FetchVenueDetailsRequest(id: id))
             let isFavorite = favoriteIds.contains(response.id)
-            // TODO: Handle fetch photo URLs
-            let photoUrls: [URL] = []
-            let venueDetail = VenueDetail(fsdto: response, isFavorite: isFavorite, photoUrls: photoUrls)
+            // TODO: Handle fetch photo URLs if I'm going to use them at all!
+            let venueDetail = VenueDetail(fsdto: response, isFavorite: isFavorite)
             try await persistenceService.saveVenueDetail(venueDetail)
             return venueDetail
         } catch {

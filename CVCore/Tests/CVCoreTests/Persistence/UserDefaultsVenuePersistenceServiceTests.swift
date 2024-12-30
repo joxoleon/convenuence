@@ -45,9 +45,9 @@ final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
 
     func testFavoritesComplex() async throws {
         // Arrange
-        let venue1 = Venue(id: "venue1", name: "Venue 1", isFavorite: false, categoryIconUrl: nil)
-        let venue2 = Venue(id: "venue2", name: "Venue 2", isFavorite: false, categoryIconUrl: nil)
-        let venue3 = Venue(id: "venue3", name: "Venue 3", isFavorite: false, categoryIconUrl: nil)
+        let venue1 = Venue(venue: Venue.sample1, isFavorite: false)
+        let venue2 = Venue(venue: Venue.sample2, isFavorite: false)
+        let venue3 = Venue(venue: Venue.sample3, isFavorite: false)
 
         try await venuePersistenceService.saveVenues([venue1, venue2, venue3])
 
@@ -78,8 +78,8 @@ final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
     
     func testFetchFavoriteVenues() async throws {
         // Arrange
-        let venue1 = Venue(id: "venue1", name: "Venue 1", isFavorite: true, categoryIconUrl: nil)
-        let venue2 = Venue(id: "venue2", name: "Venue 2", isFavorite: true, categoryIconUrl: nil)
+        let venue1 = Venue(venue: Venue.sample1, isFavorite: false)
+        let venue2 = Venue(venue: Venue.sample2, isFavorite: false)
         
         try await venuePersistenceService.saveVenue(venue1)
         try await venuePersistenceService.saveVenue(venue2)
@@ -88,17 +88,18 @@ final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
         
         // Act
         let favoriteVenues = try await venuePersistenceService.fetchFavoriteVenues()
-        print(favoriteVenues)
+        print("Favorite venues: \(favoriteVenues)")
         
         // Assert
         XCTAssertEqual(favoriteVenues.count, 2)
-        XCTAssertTrue(favoriteVenues.contains(venue1))
-        XCTAssertTrue(favoriteVenues.contains(venue2))
+        let favoriteVenueIds = favoriteVenues.map { $0.id }
+        XCTAssertTrue(favoriteVenueIds.contains(venue1.id))
+        XCTAssertTrue(favoriteVenueIds.contains(venue2.id))
     }
     
     func testSaveAndFetchVenueDetail() async throws {
         // Arrange
-        let venueDetail = VenueDetail(id: "venue1", name: "Venue 1", description: "Description", isFavorite: true, photoUrls: [])
+        let venueDetail = VenueDetail.sample1
         
         // Act
         try await venuePersistenceService.saveVenueDetail(venueDetail)
@@ -110,8 +111,8 @@ final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
     
     func testFetchVenueDetails() async throws {
         // Arrange
-        let venueDetail1 = VenueDetail(id: "venue1", name: "Venue 1", description: "Description 1", isFavorite: true, photoUrls: [])
-        let venueDetail2 = VenueDetail(id: "venue2", name: "Venue 2", description: "Description 2", isFavorite: true, photoUrls: [])
+        let venueDetail1 = VenueDetail.sample1
+        let venueDetail2 = VenueDetail.sample2
         
         try await venuePersistenceService.saveVenueDetail(venueDetail1)
         try await venuePersistenceService.saveVenueDetail(venueDetail2)
@@ -127,7 +128,7 @@ final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
     
     func testSaveAndFetchVenue() async throws {
         // Arrange
-        let venue = Venue(id: "venue1", name: "Venue 1", isFavorite: true, categoryIconUrl: nil)
+        let venue = Venue.sample1
         
         // Act
         try await venuePersistenceService.saveVenue(venue)
@@ -139,8 +140,8 @@ final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
     
     func testFetchVenues() async throws {
         // Arrange
-        let venue1 = Venue(id: "venue1", name: "Venue 1", isFavorite: true, categoryIconUrl: nil)
-        let venue2 = Venue(id: "venue2", name: "Venue 2", isFavorite: true, categoryIconUrl: nil)
+        let venue1 = Venue.sample1
+        let venue2 = Venue.sample2
         
         try await venuePersistenceService.saveVenue(venue1)
         try await venuePersistenceService.saveVenue(venue2)
@@ -169,8 +170,8 @@ final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
 
     func testSaveAndFetchMultipleVenues() async throws {
         // Arrange
-        let venue1 = Venue(id: "venue1", name: "Venue 1", isFavorite: true, categoryIconUrl: nil)
-        let venue2 = Venue(id: "venue2", name: "Venue 2", isFavorite: true, categoryIconUrl: nil)
+        let venue1 = Venue.sample1
+        let venue2 = Venue.sample2
         let venues = [venue1, venue2]
         
         // Act

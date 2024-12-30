@@ -3,7 +3,7 @@ import CVCore
 
 struct VenueCellView: View {
     let venue: Venue
-
+    
     var body: some View {
         HStack {
             if let imageUrl = URL(string: "https://via.placeholder.com/60") { // Example image placeholder
@@ -30,6 +30,12 @@ struct VenueCellView: View {
 
 struct VenueCellView_Previews: PreviewProvider {
     static var previews: some View {
-        VenueCellView(venue: Venue(id: "1", name: "Venue 1", isFavorite: true))
+        VenueCellView(venue: Venue(
+            id: "1",
+            name: "Venue 1",
+            isFavorite: true,
+            categoryIconUrl: URL(string: "https://ss3.4sqi.net/img/categories_v2/food/pizza_64.png")
+            )
+        )
     }
 }

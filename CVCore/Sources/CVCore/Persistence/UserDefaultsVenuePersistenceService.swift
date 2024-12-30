@@ -179,7 +179,8 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
               let vd = try? decoder.decode(VenueDetail.self, from: data) else {
             return
         }
-        let venueDetail = VenueDetail(id: venueId, name: vd.name, description: vd.description, isFavorite: isFavorite, photoUrls: vd.photoUrls)
+
+        let venueDetail = VenueDetail(venueDetail: vd, isFavorite: isFavorite)
         let newData = try encoder.encode(venueDetail)
         userDefaults.set(newData, forKey: "\(venueDetailsKeyPrefix)\(venueId)")
     }
@@ -189,7 +190,7 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
               let venue = try? decoder.decode(Venue.self, from: data) else {
             return
         }
-        let newVenue = Venue(id: venueId, name: venue.name, isFavorite: isFavorite, categoryIconUrl: venue.categoryIconUrl)
+        let newVenue = Venue(venue: venue, isFavorite: isFavorite)
         let newData = try encoder.encode(newVenue)
         userDefaults.set(newData, forKey: "\(venueKeyPrefix)\(venueId)")
     }
