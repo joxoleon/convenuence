@@ -20,7 +20,7 @@ struct MainTabView: View {
             }
 
             NavigationView {
-                FavoriteVenuesView()
+                FavoriteVenuesView(viewModel: viewModel.favoriteVenuesViewModel)
             }
             .tabItem {
                 Label("Favorites", systemImage: "star")

@@ -3,18 +3,9 @@ import CoreLocation
 import Combine
 import CVCore
 
-// MARK: - FavoritesViewModelProtocol
-//@MainActor
-//protocol FavoriteVenuesViewModelProtocol: ObservableObject {
-//    var favorites: [Venue] { get }
-//    var isLoading: Bool { get }
-//    var errorMessage: String? { get }
-//    func fetchFavorites()
-//}
-
 // MARK: - FavoritesViewModel
 @MainActor
-class FavoriteVenuesViewModel: ObservableObject {
+class FavoriteVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
     // MARK: - Bindable Properties
 
     @Published private(set) var favorites: [Venue] = []
@@ -42,12 +33,24 @@ class FavoriteVenuesViewModel: ObservableObject {
         Task {
             do {
                 let favoriteVenues = try await venueRepositoryService.getFavorites()
-                favorites = favoriteVenues
-                isLoading = false
+                await updateFavorites(favoriteVenues)
             } catch {
-                print("Error fetching favorites: \(error)")
-                errorMessage = error.localizedDescription
-                isLoading = false
+                await updateErrorState(with: error.localizedDescription)
+            }
+        }
+    }
+
+    func setFavorite(for venueId: VenueId, to isFavorite: Bool) {
+        Task {
+            do {
+                if isFavorite {
+                    try await venueRepositoryService.saveFavorite(venueId: venueId)
+                } else {
+                    try await venueRepositoryService.removeFavorite(venueId: venueId)
+                }
+                fetchFavorites() // Refresh the list after a change
+            } catch {
+                await updateErrorState(with: error.localizedDescription)
             }
         }
     }
@@ -56,25 +59,45 @@ class FavoriteVenuesViewModel: ObservableObject {
 
     private func bindFavoriteChanges() {
         venueRepositoryService.favoriteChangesPublisher
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.fetchFavorites()
             }
             .store(in: &cancellables)
     }
+
+    private func updateFavorites(_ favorites: [Venue]) async {
+        self.favorites = favorites
+        self.isLoading = false
+    }
+
+    private func updateErrorState(with message: String) async {
+        self.errorMessage = message
+        self.isLoading = false
+    }
 }
 
 // MARK: - FavoritesView
+
 struct FavoriteVenuesView: View {
+    
+    // MARK: - Properties
+    
     @StateObject private var viewModel: FavoriteVenuesViewModel
 
+    // MARK: - Initializers
+    
     init(viewModel: FavoriteVenuesViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
+    
+    // MARK: - Body
 
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
-                if viewModel.isLoading {
+                // Show loader only if the list is empty and still loading
+                if viewModel.isLoading && viewModel.favorites.isEmpty {
                     CenteredProgressView()
                 } else if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
@@ -92,18 +115,20 @@ struct FavoriteVenuesView: View {
                     }
                 } else {
                     ScrollView {
-                        VStack(spacing: 16) {
-                            ForEach(viewModel.favorites, id: \ .id) { venue in
+                        LazyVStack(spacing: 16) {
+                            ForEach(viewModel.favorites, id: \.id) { venue in
                                 VenueCellView(
                                     venue: venue,
                                     currentLocation: CLLocation(latitude: 0, longitude: 0), // Placeholder location
-                                    favoriteRepositoryDelegate: nil // Not needed in FavoritesView
+                                    favoriteRepositoryDelegate: viewModel // Enable favorites toggling
                                 )
                                 .padding(.horizontal)
+                                .transition(.opacity.combined(with: .slide)) // Smooth transitions
                             }
                         }
                         .padding(.top)
                     }
+                    .animation(.default, value: viewModel.favorites) // Animate changes to the list
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -115,7 +140,9 @@ struct FavoriteVenuesView: View {
     }
 }
 
+
 // MARK: - Preview
+
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
         FavoriteVenuesView(
