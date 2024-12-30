@@ -9,11 +9,13 @@ public enum FoursqareDTO {
         public let id: String
         public let name: String
         public let location: Location
+        public let categories: [Category]
         
         enum CodingKeys: String, CodingKey {
             case id = "fsq_id"
             case name
             case location
+            case categories
         }
     }
     

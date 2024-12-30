@@ -45,7 +45,7 @@ public final class VenueRepositoryServiceImpl: VenueRepositoryService {
             // If network fetch fails or it isn't available, try fetching from the persistence layer
             if let venueIds = try await persistenceService.fetchSearchResults(for: request) {
                 let venues = try await persistenceService.fetchVenues(by: venueIds)
-                return venues.map { Venue(id: $0.id, name: $0.name, isFavorite: favoriteIds.contains($0.id)) }
+                return venues.map { Venue(id: $0.id, name: $0.name, isFavorite: favoriteIds.contains($0.id), categoryIconUrl: $0.categoryIconUrl) }
             } else {
                 throw error
             }

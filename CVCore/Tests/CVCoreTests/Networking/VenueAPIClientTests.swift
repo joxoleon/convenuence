@@ -38,6 +38,19 @@ class VenueAPIClientTests: XCTestCase {
                         "region": "NY",
                         "country": "US"
                     }
+                    "categories": [
+                        {
+                        "id": 13064,
+                        "name": "Pizzeria",
+                        "short_name": "Pizza",
+                        "plural_name": "Pizzerias",
+                        "icon": {
+                            "prefix": "https://ss3.4sqi.net/img/categories_v2/food/pizza_",
+                            "suffix": ".png"
+                        }
+                        }
+                    ],
+                    "
                 }
             ]
         }

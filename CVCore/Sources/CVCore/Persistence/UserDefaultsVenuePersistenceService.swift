@@ -189,7 +189,7 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
               let venue = try? decoder.decode(Venue.self, from: data) else {
             return
         }
-        let newVenue = Venue(id: venueId, name: venue.name, isFavorite: isFavorite)
+        let newVenue = Venue(id: venueId, name: venue.name, isFavorite: isFavorite, categoryIconUrl: venue.categoryIconUrl)
         let newData = try encoder.encode(newVenue)
         userDefaults.set(newData, forKey: "\(venueKeyPrefix)\(venueId)")
     }

@@ -34,6 +34,7 @@ public final class ServiceLocator {
     // MARK: - Private Methods
 
     private func getApiKey() -> String? {
-        return nil // Return the real API key here when running the app
+        // TODO: Implement a secure way to store and retrieve the API key - DO NOT MERGE IN A HARD-CODED API KEY
+        return "fsq3YmUUOIyJI8dOKxZfTtnlkYSJZ1LIAahConcvUZnKS5I=" // Return the real API key here when running the app
     }
 }

@@ -24,8 +24,8 @@ final class VenueRepositoryServiceTests: XCTestCase {
     func testSearchVenuesSuccess() async throws {
         // Arrange
         let request = SearchVenuesRequest(query: "coffee", location: (latitude: 40.7128, longitude: -74.0060))
-        let expectedVenues = [Venue(id: "1", name: "Coffee Shop", isFavorite: false)]
-        mockApiClient.searchVenuesResult = SearchVenuesResponse(results: expectedVenues.map { FoursqareDTO.Venue(id: $0.id, name: $0.name, location: FoursqareDTO.Location(address: "", formatted_address: "", locality: "", postcode: "", region: "", country: "")) })
+        let expectedVenues = [Venue(id: "1", name: "Coffee Shop", isFavorite: false, categoryIconUrl: nil)]
+        mockApiClient.searchVenuesResult = SearchVenuesResponse(results: expectedVenues.map { FoursqareDTO.Venue(id: $0.id, name: $0.name, location: FoursqareDTO.Location(address: "", formatted_address: "", locality: "", postcode: "", region: "", country: ""), categories: [] ) })
         mockPersistenceService.fetchFavoriteIdsResult = []
 
         // Act
@@ -41,7 +41,7 @@ final class VenueRepositoryServiceTests: XCTestCase {
         let request = SearchVenuesRequest(query: "coffee", location: (latitude: 40.7128, longitude: -74.0060))
         mockApiClient.searchVenuesResult = nil
         mockPersistenceService.fetchSearchResultsResult = ["1"]
-        let expectedVenues = [Venue(id: "1", name: "Coffee Shop", isFavorite: false)]
+        let expectedVenues = [Venue(id: "1", name: "Coffee Shop", isFavorite: false, categoryIconUrl: nil)]
         mockPersistenceService.fetchVenuesResult = expectedVenues
 
         // Act
@@ -117,7 +117,7 @@ final class VenueRepositoryServiceTests: XCTestCase {
 
     func testGetFavorites() async throws {
         // Arrange
-        let expectedFavorites = [Venue(id: "1", name: "Coffee Shop", isFavorite: true)]
+        let expectedFavorites = [Venue(id: "1", name: "Coffee Shop", isFavorite: true, categoryIconUrl: nil)]
         mockPersistenceService.fetchFavoriteVenuesResult = expectedFavorites
 
         // Act

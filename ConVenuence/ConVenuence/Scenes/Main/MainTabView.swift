@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @StateObject private var viewModel = MainTabViewModel()
+
     init() {
         UITabBar.appearance().backgroundColor = UIColor(named: "PrimaryBackground")
         UITabBar.appearance().barTintColor = UIColor(named: "PrimaryBackground")
@@ -11,7 +13,7 @@ struct MainTabView: View {
     var body: some View {
         TabView {
             NavigationView {
-                SearchVenuesView()
+                SearchVenuesView(viewModel: viewModel.searchVenuesViewModel)
             }
             .tabItem {
                 Label("Search", systemImage: "magnifyingglass")

@@ -1,11 +1,12 @@
 #  Implementing the ConVenuence app:
 
-[ ] Create basic tab/navigation layout
-[ ] Create splash screen
-[ ] Create Search Venue Scene
+[x] Create basic tab/navigation layout
+[ ] Create Reusable Venue Cell and Venue List
+[x] Create Search Venue Scene
 [ ] Create Venue Detail Scene
 [ ] Implement Navigation
 [ ] Add favorites functionality to Venue Detail Scene
 [ ] Create Favorites Scene
-[ ] Add navigation 
+[ ] Add navigation
+[ ] Maybe add a splash screen?
 
