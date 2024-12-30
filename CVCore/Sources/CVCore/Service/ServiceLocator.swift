@@ -16,6 +16,9 @@ public final class ServiceLocator {
         return VenueRepositoryServiceImpl(apiClient: venueAPIClient, persistenceService: venuePersistenceService)
     }()
 
+    public lazy var userLocationService: UserLocationService = {
+        return UserLocationServiceImpl()
+    }()
 
     // MARK: - Private Properties
 

@@ -10,14 +10,14 @@ public enum FoursquareDTO {
         public let name: String
         public let location: Location
         public let categories: [Category]
-        public let geocodes: Geocodes? // Added geocodes property
+        public let geocodes: Geocodes?
         
         enum CodingKeys: String, CodingKey {
             case id = "fsq_id"
             case name
             case location
             case categories
-            case geocodes // Added geocodes coding key
+            case geocodes
         }
     }
     
@@ -86,6 +86,20 @@ public enum FoursquareDTO {
     
     public struct SearchResponse: Codable {
         public let results: [Venue]
+    }
+
+    // MARK: - SearchVenuesRequest
+    
+    public struct SearchVenuesRequest: Codable {
+        public let latitude: Double
+        public let longitude: Double
+        public let query: String?
+        
+        public init(latitude: Double, longitude: Double, query: String?) {
+            self.latitude = latitude
+            self.longitude = longitude
+            self.query = query
+        }
     }
 }
 

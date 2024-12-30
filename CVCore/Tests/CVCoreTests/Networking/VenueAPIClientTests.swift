@@ -1,4 +1,5 @@
 import XCTest
+import CoreLocation
 @testable import CVCore
 
 class VenueAPIClientTests: XCTestCase {
@@ -39,7 +40,7 @@ class VenueAPIClientTests: XCTestCase {
         
         URLProtocolMock.testURLs[url] = (response, data, nil)
         
-        let request = SearchVenuesRequest(query: "pizza", location: (latitude: 44.8196, longitude: 20.4251))
+        let request = SearchVenuesRequest(query: "pizza", location: CLLocation(latitude: 44.821935, longitude: 20.416514))
         let result = try await apiClient.searchVenues(request: request)
         
         XCTAssertEqual(result.results.count, 1)
@@ -93,7 +94,7 @@ class VenueAPIClientTests: XCTestCase {
         
         URLProtocolMock.testURLs[url] = (nil, nil, error)
         
-        let request = SearchVenuesRequest(query: "coffee", location: (latitude: 40.748817, longitude: -73.985428))
+        let request = SearchVenuesRequest(query: "coffee", location: CLLocation(latitude: 40.748817, longitude: -73.985428))
         
         do {
             _ = try await apiClient.searchVenues(request: request)

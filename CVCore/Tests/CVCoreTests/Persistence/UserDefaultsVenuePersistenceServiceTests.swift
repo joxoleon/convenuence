@@ -1,4 +1,5 @@
 import XCTest
+import CoreLocation
 @testable import CVCore
 
 final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
@@ -157,7 +158,7 @@ final class UserDefaultsVenuePersistenceServiceTests: XCTestCase {
     
     func testSaveAndFetchSearchResults() async throws {
         // Arrange
-        let request = SearchVenuesRequest(query: "venue2", location: (latitude: 0, longitude: 0))
+        let request = SearchVenuesRequest(query: "venue2", location: CLLocation(latitude: 0, longitude: 0))
         let venueIds = ["venue1", "venue2"]
         
         // Act

@@ -1,4 +1,5 @@
 import XCTest
+import CoreLocation
 
 @testable import CVCore
 
@@ -25,8 +26,8 @@ final class VenueRepositoryServiceTests: XCTestCase {
 
     func testSearchVenuesSuccess() async throws {
         // Arrange
-        let request = SearchVenuesRequest(
-            query: "coffee", location: (latitude: 40.7128, longitude: -74.0060))
+        let location = CLLocation(latitude: 40.7128, longitude: -74.0060)
+        let query = "coffee"
         let expectedVenues = [
             Venue.sample1
         ]
@@ -35,7 +36,7 @@ final class VenueRepositoryServiceTests: XCTestCase {
         mockPersistenceService.fetchFavoriteIdsResult = []
 
         // Act
-        let venues = try await venueRepositoryService.searchVenues(request: request)
+        let venues = try await venueRepositoryService.searchVenues(at: location, query: query)
 
         // Assert
         XCTAssertEqual(venues, expectedVenues)
@@ -44,8 +45,8 @@ final class VenueRepositoryServiceTests: XCTestCase {
 
     func testSearchVenuesNetworkFailure() async throws {
         // Arrange
-        let request = SearchVenuesRequest(
-            query: "coffee", location: (latitude: 40.7128, longitude: -74.0060))
+        let location = CLLocation(latitude: 40.7128, longitude: -74.0060)
+        let query = "coffee"
         mockApiClient.searchVenuesResult = nil
         mockPersistenceService.fetchSearchResultsResult = ["1"]
         let expectedVenues = [
@@ -54,7 +55,7 @@ final class VenueRepositoryServiceTests: XCTestCase {
         mockPersistenceService.fetchVenuesResult = expectedVenues
 
         // Act
-        let venues = try await venueRepositoryService.searchVenues(request: request)
+        let venues = try await venueRepositoryService.searchVenues(at: location, query: query)
 
         // Assert
         XCTAssertEqual(venues, expectedVenues)

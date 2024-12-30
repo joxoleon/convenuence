@@ -1,9 +1,10 @@
 import Foundation
+import CoreLocation
 
 // MARK: - VenueRepositoryService Protocol
 
 public protocol VenueRepositoryService {
-    func searchVenues(request: SearchVenuesRequest) async throws -> [Venue]
+    func searchVenues(at location: CLLocation, query: String) async throws -> [Venue]
     func getVenueDetails(id: VenueId) async throws -> VenueDetail
     func getFavorites() async throws -> [Venue]
     func saveFavorite(venueId: VenueId) async throws
@@ -29,7 +30,8 @@ public final class VenueRepositoryServiceImpl: VenueRepositoryService {
 
     // MARK: - VenueRepositoryService Methods
     
-    public func searchVenues(request: SearchVenuesRequest) async throws -> [Venue] {
+    public func searchVenues(at location: CLLocation, query: String) async throws -> [Venue] {
+        let request = SearchVenuesRequest(query: query, location: location)
         let favoriteIds = try await persistenceService.fetchFavoriteIds()
 
         do {
