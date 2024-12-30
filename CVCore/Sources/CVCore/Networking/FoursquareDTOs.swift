@@ -10,13 +10,14 @@ public enum FoursquareDTO {
         public let name: String
         public let location: Location
         public let categories: [Category]
-        public let geocodes: Geocodes?
+        public let geocodes: Geocodes? // Added geocodes property
         
         enum CodingKeys: String, CodingKey {
             case id = "fsq_id"
             case name
             case location
             case categories
+            case geocodes // Added geocodes coding key
         }
     }
     
@@ -114,7 +115,13 @@ extension FoursquareDTO.Venue {
                         suffix: ".png"
                     )
                 )
-            ]
+            ],
+            geocodes: FoursquareDTO.Geocodes(
+                main: FoursquareDTO.Coordinate(
+                    latitude: 40.712776,
+                    longitude: -74.005974
+                )
+            )
         )
     }()
 
@@ -140,7 +147,13 @@ extension FoursquareDTO.Venue {
                         suffix: ".png"
                     )
                 )
-            ]
+            ],
+            geocodes: FoursquareDTO.Geocodes(
+                main: FoursquareDTO.Coordinate(
+                    latitude: 40.712776,
+                    longitude: -74.005974
+                )
+            )
         )
     }()
 
@@ -166,7 +179,13 @@ extension FoursquareDTO.Venue {
                         suffix: ".png"
                     )
                 )
-            ]
+            ],
+            geocodes: FoursquareDTO.Geocodes(
+                main: FoursquareDTO.Coordinate(
+                    latitude: 40.712776,
+                    longitude: -74.005974
+                )
+            )
         )
     }()
 }
