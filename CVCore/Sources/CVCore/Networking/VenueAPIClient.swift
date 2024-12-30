@@ -38,7 +38,7 @@ public protocol VenueAPIClient {
      This method sends a request to the Foursquare Venue API to retrieve photos of a venue identified by its ID.
 
      - Parameter request: An instance of `FetchVenuePhotosRequest` containing the ID of the venue whose photos are being requested.
-     - Returns: An instance of `FetchVenuePhotosResponse`, which includes a list of photos for the specified venue.
+     - Returns: An array of `FoursquareDTO.Photo`, which includes a list of photos for the specified venue.
      - Throws:
        - `VenueAPIClientError.networkError` if a network error occurs.
        - `VenueAPIClientError.invalidResponse` if the server response is invalid (e.g., not a 200 HTTP status).
@@ -171,6 +171,4 @@ public struct FetchVenuePhotosRequest {
     }
 }
 
-public struct FetchVenuePhotosResponse: Codable {
-    public let photos: [FoursquareDTO.Photo]
-}
+public typealias FetchVenuePhotosResponse = [FoursquareDTO.Photo]

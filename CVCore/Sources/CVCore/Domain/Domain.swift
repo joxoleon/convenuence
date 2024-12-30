@@ -73,6 +73,22 @@ public struct VenueDetail: Codable, Equatable {
     public var photoUrls: [URL] {
         return photos.compactMap { $0.photoUrlHalfRes }
     }
+    
+    public var description: String {
+        return venueDetailDto.description ?? ""
+    }
+    
+    public var formattedAddress: String {
+        return venueDetailDto.location.formatted_address ?? "Address Unavailable"
+    }
+    
+    public var clLocation: CLLocation? {
+        guard let latitude = venueDetailDto.geocodes?.main.latitude, let longitude = venueDetailDto.geocodes?.main.longitude else {
+            return nil
+        }
+        
+        return CLLocation(latitude: latitude, longitude: longitude)
+    }
 }
 
 // MARK: - Utility Functions

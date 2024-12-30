@@ -21,7 +21,7 @@ struct SearchVenuesView: View {
                     .textFieldStyle(PlainTextFieldStyle())
             }
             .padding()
-            .background(RoundedRectangle(cornerRadius: 8).fill(Color(.systemGray6)))
+            .background(RoundedRectangle(cornerRadius: 8).fill(Color.cardBackground))
             .padding([.horizontal, .top])
             .frame(maxWidth: .infinity) // Ensure it spans the entire width
 
@@ -43,6 +43,7 @@ struct SearchVenuesView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Prevent content shifting
         }
+        .background(Color.primaryBackground)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Keep everything pinned to the top
     }
 }

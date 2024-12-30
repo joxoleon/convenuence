@@ -47,4 +47,14 @@ class VenueAPIClientUsecaseTests: XCTestCase {
     //     XCTAssertNotNil(response.name)
     //     XCTAssertNotNil(response.location.address)
     // }
+
+    // func testFetchPhotosRealAPI() async throws {
+    //     let request = FetchVenuePhotosRequest(id: "598ee2aa2955134db1635b30")
+    //     let response = try await apiClient.fetchVenuePhotos(request: request)
+
+    //     // Assertions
+    //     XCTAssertGreaterThan(response.count, 0)
+    //     XCTAssertNotNil(response.first?.prefix)
+    //     XCTAssertNotNil(response.first?.suffix)
+    // }
 }

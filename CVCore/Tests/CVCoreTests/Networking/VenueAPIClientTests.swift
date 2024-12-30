@@ -84,8 +84,8 @@ class VenueAPIClientTests: XCTestCase {
         XCTAssertEqual(result.categories.first?.short_name, "Pizza")
         XCTAssertEqual(result.categories.first?.icon.prefix, "https://ss3.4sqi.net/img/categories_v2/food/pizza_")
         XCTAssertEqual(result.categories.first?.icon.suffix, ".png")
-        XCTAssertEqual(result.geocodes.main.latitude, 44.821935)
-        XCTAssertEqual(result.geocodes.main.longitude, 20.416514)
+        XCTAssertEqual(result.geocodes?.main.latitude, 44.821935)
+        XCTAssertEqual(result.geocodes?.main.longitude, 20.416514)
     }
 
     func testSearchVenuesNetworkError() async throws {

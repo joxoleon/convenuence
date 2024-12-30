@@ -84,7 +84,7 @@ public final class VenueRepositoryServiceImpl: VenueRepositoryService {
             let response: FetchVenueDetailsResponse = try await apiClient.fetchVenueDetails(request: FetchVenueDetailsRequest(id: id))
             let photosResponse: FetchVenuePhotosResponse = try await apiClient.fetchVenuePhotos(request: FetchVenuePhotosRequest(id: id))
             let isFavorite = favoriteIds.contains(response.id)
-            let venueDetail = VenueDetail(fsdto: response, photos: photosResponse.photos, isFavorite: isFavorite)
+            let venueDetail = VenueDetail(fsdto: response, photos: photosResponse, isFavorite: isFavorite)
             try await persistenceService.saveVenueDetail(venueDetail)
             return venueDetail
         } catch {
