@@ -1,4 +1,6 @@
 import SwiftUI
+import CoreLocation
+import Combine
 import CVCore
 
 // MARK: - SearchVenuesView
@@ -11,20 +13,53 @@ struct SearchVenuesView: View {
 
     var body: some View {
         NavigationView {
-            VStack {
-                TextField("Search venues", text: $viewModel.searchQuery)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
+            VStack(spacing: 0) {
+                // Search Bar
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.accentBlue)
+                    TextField("Search venues", text: $viewModel.searchQuery)
+                        .textFieldStyle(PlainTextFieldStyle())
+                }
+                .padding()
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color(.systemGray6)))
+                .padding([.horizontal, .top])
+                .zIndex(1) // Ensure it stays above the list
 
                 if viewModel.isLoading {
                     ProgressView()
+                        .padding(.top)
                 } else if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage).foregroundColor(.red)
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .padding()
                 } else {
-                    VenueListView(venues: viewModel.venues)
+                    ScrollView {
+                        VenueListView(venues: viewModel.venues, currentLocation: viewModel.currentLocation)
+                    }
+                    .padding(.top, 8)
                 }
             }
-            .navigationTitle("Search Venues")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Search Venues")
+                        .font(.headline)
+                        .foregroundColor(.accentBlue)
+                }
+            }
         }
+        .navigationViewStyle(StackNavigationViewStyle()) // Ensure proper layout for single-column view
+    }
+}
+
+// MARK: - Preview
+struct SearchVenuesView_Previews: PreviewProvider {
+    static var previews: some View {
+        SearchVenuesView(
+            viewModel: SearchVenuesViewModel(
+                venueRepositoryService: ServiceLocator.shared.venueRepositoryService,
+                userLocationService: ServiceLocator.shared.userLocationService
+            )
+        )
     }
 }

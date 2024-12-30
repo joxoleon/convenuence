@@ -1,8 +1,10 @@
 import SwiftUI
 import CVCore
+import CoreLocation
 
 struct VenueCellView: View {
     let venue: Venue
+    let currentLocation: CLLocation
     
     var body: some View {
         ZStack {
@@ -19,13 +21,13 @@ struct VenueCellView: View {
                     } placeholder: {
                         ProgressView()
                     }
-                    .frame(width: 60, height: 60)
+                    .frame(width: 64, height: 64)
                     .cornerRadius(8)
                     .padding(.leading)
                 } else {
                     Rectangle()
                         .fill(Color.gray.opacity(0.5))
-                        .frame(width: 60, height: 60)
+                        .frame(width: 64, height: 64)
                         .cornerRadius(8)
                         .padding(.leading)
                 }
@@ -33,31 +35,42 @@ struct VenueCellView: View {
                 // Venue Details
                 VStack(alignment: .leading, spacing: 6) {
                     Text(venue.name)
-                        .font(.headline)
+                        .font(.title)
                         .foregroundColor(.white)
                     
-                    HStack(spacing: 4) {
-                        if venue.isFavorite {
-                            Image(systemName: "star.fill")
-                                .foregroundColor(.accentPurple)
-                                .font(.title3)
-                                .shadow(color: Color.accentPurple.opacity(0.6), radius: 6, x: 0, y: 0)
-                        } else {
-                            Image(systemName: "star")
-                                .foregroundColor(.secondaryText)
-                                .font(.title3)
-                        }
-                    }
+                    Text(venue.address)
+                        .font(.subheadline)
+                        .foregroundColor(.secondaryText)
+                    
+                    Text(venue.distanceString(from: currentLocation))
+                        .font(.subheadline)
+                        .foregroundColor(.primaryText)
+                        .fontWeight(.semibold)
                 }
                 .padding(.leading, 8)
                 
                 Spacer()
+                
+                // Favorite Star
+                FavoriteStarView(isFavorite: venue.isFavorite)
+                    .padding(.trailing)
             }
             .padding(.vertical, 12)
         }
-        .padding(.horizontal)
     }
 }
+
+struct FavoriteStarView: View {
+    let isFavorite: Bool
+    
+    var body: some View {
+        Image(systemName: isFavorite ? "star.fill" : "star")
+            .foregroundColor(.accentPurple)
+            .font(.title2)
+            .shadow(color: isFavorite ? Color.accentPurple.opacity(0.6) : .clear, radius: 6, x: 0, y: 0)
+    }
+}
+
 
 struct VenueCellView_Previews: PreviewProvider {
     static var previews: some View {
@@ -66,17 +79,20 @@ struct VenueCellView_Previews: PreviewProvider {
                 .ignoresSafeArea()
             
             VStack {
-                VenueCellView(venue: Venue.sample1)
-                    .previewLayout(.sizeThatFits)
-                    .padding()
-                    .background(Color.primaryBackground)
+                VenueCellView(
+                    venue: Venue.sample1,
+                    currentLocation: CLLocation(latitude: 40.7128, longitude: -74.0060)
+                )
+                .previewLayout(.sizeThatFits)
+                .padding()
                 
-                VenueCellView(venue: Venue.sample2)
-                    .previewLayout(.sizeThatFits)
-                    .padding()
-                    .background(Color.primaryBackground)
+                VenueCellView(
+                    venue: Venue.sample2,
+                    currentLocation: CLLocation(latitude: 40.7128, longitude: -74.0060)
+                )
+                .previewLayout(.sizeThatFits)
+                .padding()
             }
         }
-
     }
 }

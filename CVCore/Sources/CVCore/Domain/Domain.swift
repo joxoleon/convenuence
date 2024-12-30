@@ -5,16 +5,13 @@ public typealias VenueId = String
 
 // MARK: - Venue
 public struct Venue: Codable, Equatable {
-    private let venueDto: FoursquareDTO.Venue
-    
     public let id: VenueId
-    public let name: String
     public let isFavorite: Bool
+    private let venueDto: FoursquareDTO.Venue
 
     public init(fsdto: FoursquareDTO.Venue, isFavorite: Bool) {
         self.venueDto = fsdto
         self.id = fsdto.id
-        self.name = fsdto.name
         self.isFavorite = isFavorite
     }
 
@@ -22,18 +19,30 @@ public struct Venue: Codable, Equatable {
         self.init(fsdto: venue.venueDto, isFavorite: isFavorite)
     }
 
+    // MARK: - Computed Properties
+
     public func categoryIconUrl(resolution: Int) -> URL? {
         return URL(string: (venueDto.categories.first?.icon.prefix ?? "") + "\(resolution)" + (venueDto.categories.first?.icon.suffix ?? ""))
     }
-
-    public func distance(from location: CLLocation) -> Double? {
-        guard let geocodes = venueDto.geocodes else { return nil }
-        return calculateDistanceMeters(from: location, to: geocodes.main)
+    
+    public var distanceString: String {
+        return formatDistance(Double(venueDto.distance))
     }
 
-    public func distanceString(from location: CLLocation) -> String? {
-        guard let distance = distance(from: location) else { return nil }
-        return formatDistance(distance)
+    public var name: String {
+        return venueDto.name
+    }
+
+    public var address: String {
+        return venueDto.location.formatted_address ?? "Address Unavailable"
+    }
+    
+    public func distance(from location: CLLocation) -> Double {
+        return calculateDistanceMeters(from: location, to: venueDto.geocodes.main)
+    }
+    
+    public func distanceString(from location: CLLocation) -> String {
+        return formatDistance(calculateDistanceMeters(from: location, to: venueDto.geocodes.main))
     }
 }
 
@@ -41,15 +50,11 @@ public struct VenueDetail: Codable, Equatable {
     private let venueDetailDto: FoursquareDTO.VenueDetails
 
     public let id: VenueId
-    public let name: String
-    public let description: String?
     public let isFavorite: Bool
     
     public init(fsdto: FoursquareDTO.VenueDetails, isFavorite: Bool) {
         self.venueDetailDto = fsdto
         self.id = fsdto.id
-        self.name = fsdto.name
-        self.description = fsdto.description
         self.isFavorite = isFavorite
     }
 
@@ -57,16 +62,18 @@ public struct VenueDetail: Codable, Equatable {
         self.init(fsdto: venueDetail.venueDetailDto, isFavorite: isFavorite)
     }
 
-    public func distance(from location: CLLocation) -> Double {
-        return calculateDistanceMeters(from: location, to: venueDetailDto.geocodes.main)
+    // MARK: - Computed Properties
+
+    public var name: String {
+        return venueDetailDto.name
     }
 
-    public func distanceString(from location: CLLocation) -> String {
-        return formatDistance(distance(from: location))
-    }
+
 }
 
 // MARK: - Utility Functions
+
+// MARK Function as deprecated
 
 private func calculateDistanceMeters(from location: CLLocation, to coordinate: FoursquareDTO.Coordinate) -> Double {
     let venueLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)

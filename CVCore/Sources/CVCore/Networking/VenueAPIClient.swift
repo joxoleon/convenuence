@@ -57,8 +57,7 @@ public class VenueAPIClientImpl: VenueAPIClient {
         )
     }
 
-    public func fetchVenueDetails(request: FetchVenueDetailsRequest) async throws -> FetchVenueDetailsResponse
-    {
+    public func fetchVenueDetails(request: FetchVenueDetailsRequest) async throws -> FetchVenueDetailsResponse {
         let url = request.url
         return try await apiClient.performRequest(
             url: url, queryItems: request.queryItems, authorizationHeader: authorizationHeader,
@@ -73,8 +72,6 @@ public struct SearchVenuesRequest {
     let query: String
     let location: CLLocation
     let radius: Int
-    // Add limit and offset properties for pagination purposes
-    // For now I won't implement that feature, but it can be added later
     let limit: Int
     let offset: Int
 
@@ -94,18 +91,18 @@ public struct SearchVenuesRequest {
 
     var url: URL {
         var components = URLComponents(string: "https://api.foursquare.com/v3/places/search")!
-        components.queryItems = [
+        components.queryItems = queryItems
+        return components.url!
+    }
+
+    var queryItems: [URLQueryItem]? {
+        return [
             URLQueryItem(name: "query", value: query),
             URLQueryItem(name: "ll", value: "\(location.coordinate.latitude),\(location.coordinate.longitude)"),
             URLQueryItem(name: "radius", value: "\(radius)"),
             URLQueryItem(name: "limit", value: "\(limit)"),
             URLQueryItem(name: "offset", value: "\(offset)")
         ]
-        return components.url!
-    }
-
-    var queryItems: [URLQueryItem]? {
-        return nil
     }
 }
 

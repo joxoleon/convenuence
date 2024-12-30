@@ -34,7 +34,7 @@ class VenueAPIClientTests: XCTestCase {
     }
 
     func testSearchVenuesSuccess() async throws {
-        let url = URL(string: "https://api.foursquare.com/v3/places/search")!
+        let url = URL(string: "https://api.foursquare.com/v3/places/search?query=pizza&ll=44.821935,20.416514&radius=3000&limit=50&offset=0")!
         let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)
         let data = loadJSONFromFile(named: "SearchVenuesResponse")
         
@@ -57,8 +57,8 @@ class VenueAPIClientTests: XCTestCase {
         XCTAssertEqual(result.results.first?.categories.first?.short_name, "Pizza")
         XCTAssertEqual(result.results.first?.categories.first?.icon.prefix, "https://ss3.4sqi.net/img/categories_v2/food/pizza_")
         XCTAssertEqual(result.results.first?.categories.first?.icon.suffix, ".png")
-        XCTAssertEqual(result.results.first?.geocodes?.main.latitude, 44.821935)
-        XCTAssertEqual(result.results.first?.geocodes?.main.longitude, 20.416514)
+        XCTAssertEqual(result.results.first?.geocodes.main.latitude, 44.821935)
+        XCTAssertEqual(result.results.first?.geocodes.main.longitude, 20.416514)
     }
 
     func testFetchVenueDetailsSuccess() async throws {
@@ -89,7 +89,7 @@ class VenueAPIClientTests: XCTestCase {
     }
 
     func testSearchVenuesNetworkError() async throws {
-        let url = URL(string: "https://api.foursquare.com/v3/places/search")!
+        let url = URL(string: "https://api.foursquare.com/v3/places/search?query=coffee&ll=40.748817,-73.985428&radius=3000&limit=50&offset=0")!
         let error = URLError(.notConnectedToInternet)
         
         URLProtocolMock.testURLs[url] = (nil, nil, error)

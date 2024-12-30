@@ -10,7 +10,8 @@ public enum FoursquareDTO {
         public let name: String
         public let location: Location
         public let categories: [Category]
-        public let geocodes: Geocodes?
+        public let distance: Int
+        public let geocodes: Geocodes
         
         enum CodingKeys: String, CodingKey {
             case id = "fsq_id"
@@ -18,18 +19,19 @@ public enum FoursquareDTO {
             case location
             case categories
             case geocodes
+            case distance
         }
     }
     
     // MARK: - Location
     
     public struct Location: Codable, Equatable {
-        public let address: String
-        public let formatted_address: String
-        public let locality: String
-        public let postcode: String
-        public let region: String
-        public let country: String
+        public let address: String?
+        public let formatted_address: String?
+        public let locality: String?
+        public let postcode: String?
+        public let region: String?
+        public let country: String?
     }
     
     // MARK: - VenueDetails
@@ -121,15 +123,16 @@ extension FoursquareDTO.Venue {
             ),
             categories: [
                 FoursquareDTO.Category(
-                    id: 13064,
-                    name: "Pizzeria",
-                    short_name: "Pizza",
+                    id: 13034   ,
+                    name: "Café",
+                    short_name: "Café",
                     icon: FoursquareDTO.Icon(
-                        prefix: "https://ss3.4sqi.net/img/categories_v2/food/pizza_",
+                        prefix: "https://ss3.4sqi.net/img/categories_v2/food/cafe_",
                         suffix: ".png"
                     )
                 )
             ],
+            distance: 125,
             geocodes: FoursquareDTO.Geocodes(
                 main: FoursquareDTO.Coordinate(
                     latitude: 40.712776,
@@ -162,10 +165,11 @@ extension FoursquareDTO.Venue {
                     )
                 )
             ],
+            distance: 250,
             geocodes: FoursquareDTO.Geocodes(
                 main: FoursquareDTO.Coordinate(
                     latitude: 40.712776,
-                    longitude: -74.005974
+                    longitude: -74.025974
                 )
             )
         )
@@ -194,10 +198,11 @@ extension FoursquareDTO.Venue {
                     )
                 )
             ],
+            distance: 5245,
             geocodes: FoursquareDTO.Geocodes(
                 main: FoursquareDTO.Coordinate(
                     latitude: 40.712776,
-                    longitude: -74.005974
+                    longitude: -74.038974
                 )
             )
         )

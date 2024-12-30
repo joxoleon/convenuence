@@ -5,7 +5,10 @@ class MainTabViewModel: ObservableObject {
     let searchVenuesViewModel: SearchVenuesViewModel
 
     init() {
-        self.searchVenuesViewModel = SearchVenuesViewModel(venueRepositoryService: ServiceLocator.shared.venueRepositoryService)
+        self.searchVenuesViewModel = SearchVenuesViewModel(
+            venueRepositoryService: ServiceLocator.shared.venueRepositoryService,
+            userLocationService: ServiceLocator.shared.userLocationService
+        )
     }
 }
 
