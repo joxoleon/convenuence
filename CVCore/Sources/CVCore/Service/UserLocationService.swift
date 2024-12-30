@@ -66,12 +66,18 @@ public final class UserLocationServiceImpl: NSObject, UserLocationService, CLLoc
         }
     }
     
-    private func updateLocation() {
+   private func updateLocation() {
         let status = locationManager.authorizationStatus
-        if status == .authorizedWhenInUse || status == .authorizedAlways {
+        switch status {
+        case .authorizedWhenInUse, .authorizedAlways:
             locationManager.startUpdatingLocation()
-        } else {
-            print("Location access not authorized. Falling back to default location.")
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .restricted, .denied:
+            print("Location access restricted or denied. Falling back to default location.")
+            currentLocation = defaultLocation
+        @unknown default:
+            print("Unknown authorization status. Falling back to default location.")
             currentLocation = defaultLocation
         }
     }
