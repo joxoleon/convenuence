@@ -6,6 +6,13 @@ import CVCore
 struct VenueCellView: View {
     let venue: Venue
     let currentLocation: CLLocation
+    weak var favoriteRepositoryDelegate: FavoriteRepositoryDelegate?
+    
+    init(venue: Venue, currentLocation: CLLocation, favoriteRepositoryDelegate: FavoriteRepositoryDelegate?) {
+        self.venue = venue
+        self.currentLocation = currentLocation
+        self.favoriteRepositoryDelegate = favoriteRepositoryDelegate
+    }
 
     var body: some View {
         ZStack {
@@ -59,7 +66,7 @@ struct VenueCellView: View {
                 Spacer()
                 
                 // Favorite Star
-                FavoriteStarView(isFavorite: venue.isFavorite)
+                FavoriteStarView(venueId: venue.id, isFavorite: venue.isFavorite, delegate: favoriteRepositoryDelegate)
                     .padding(.trailing)
             }
             .padding(.vertical, 12)
@@ -67,16 +74,31 @@ struct VenueCellView: View {
     }
 }
 
+// MARK: - Custom Views and Delegates
+
+protocol FavoriteRepositoryDelegate: AnyObject {
+    func setFavorite(for venueId: VenueId, to isFavorite: Bool)
+}
+
 struct FavoriteStarView: View {
+    let venueId: VenueId
     let isFavorite: Bool
-    
+    weak var delegate: FavoriteRepositoryDelegate?
+
     var body: some View {
-        Image(systemName: isFavorite ? "star.fill" : "star")
-            .foregroundColor(.accentPurple)
-            .font(.title2)
-            .shadow(color: isFavorite ? Color.accentPurple.opacity(0.6) : .clear, radius: 6, x: 0, y: 0)
+        Button(action: {
+            delegate?.setFavorite(for: venueId, to: !isFavorite)
+        }) {
+            Image(systemName: isFavorite ? "star.fill" : "star")
+                .foregroundColor(.accentPurple)
+                .font(.title2)
+                .shadow(color: isFavorite ? Color.accentPurple.opacity(0.6) : .clear, radius: 6, x: 0, y: 0)
+        }
     }
 }
+
+
+// MARK: - Preview
 
 struct VenueCellView_Previews: PreviewProvider {
     static var previews: some View {
@@ -87,14 +109,16 @@ struct VenueCellView_Previews: PreviewProvider {
             VStack {
                 VenueCellView(
                     venue: Venue.sample1,
-                    currentLocation: CLLocation(latitude: 40.7128, longitude: -74.0060)
+                    currentLocation: CLLocation(latitude: 40.7128, longitude: -74.0060),
+                    favoriteRepositoryDelegate: nil
                 )
                 .previewLayout(.sizeThatFits)
                 .padding()
                 
                 VenueCellView(
                     venue: Venue.sample2,
-                    currentLocation: CLLocation(latitude: 40.7128, longitude: -74.0060)
+                    currentLocation: CLLocation(latitude: 40.7128, longitude: -74.0060),
+                    favoriteRepositoryDelegate: nil
                 )
                 .previewLayout(.sizeThatFits)
                 .padding()

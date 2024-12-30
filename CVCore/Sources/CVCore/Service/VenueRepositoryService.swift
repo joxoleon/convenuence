@@ -1,15 +1,20 @@
 import Foundation
 import CoreLocation
+import Combine
 
 // MARK: - VenueRepositoryService Protocol
 
 public protocol VenueRepositoryService {
     func searchVenues(at location: CLLocation, query: String) async throws -> [Venue]
+    func searchVenuesFromCache(at location: CLLocation, query: String) async throws -> [Venue]
     func getVenueDetails(id: VenueId) async throws -> VenueDetail
     func getFavorites() async throws -> [Venue]
     func saveFavorite(venueId: VenueId) async throws
     func removeFavorite(venueId: VenueId) async throws
     func isFavorite(id: VenueId) async throws -> Bool
+
+    // Combine publisher for favorite changes
+    var favoriteChangesPublisher: AnyPublisher<Void, Never> { get }
 }
 
 // MARK: - VenueRepositoryService Implementation
@@ -20,6 +25,13 @@ public final class VenueRepositoryServiceImpl: VenueRepositoryService {
     
     private let apiClient: VenueAPIClient
     private let persistenceService: VenuePersistenceService
+
+    // MARK: - Published Properties
+
+    private let favoriteChangesSubject = PassthroughSubject<Void, Never>()
+    public var favoriteChangesPublisher: AnyPublisher<Void, Never> {
+        favoriteChangesSubject.eraseToAnyPublisher()
+    }
 
     // MARK: - Initializers
 
@@ -54,6 +66,17 @@ public final class VenueRepositoryServiceImpl: VenueRepositoryService {
         }
     }
 
+    // This method is used when favorites have changed - use to fetch updated models without unnecessary network calls
+    public func searchVenuesFromCache(at location: CLLocation, query: String) async throws -> [Venue] {
+        let request = SearchVenuesRequest(query: query, location: location)
+        if let venueIds = try await persistenceService.fetchSearchResults(for: request) {
+            let venues = try await persistenceService.fetchVenues(by: venueIds)
+            return venues
+        } else {
+            return []
+        }
+    }
+
     public func getVenueDetails(id: VenueId) async throws -> VenueDetail {
         let favoriteIds = try await persistenceService.fetchFavoriteIds()
         do {
@@ -80,14 +103,22 @@ public final class VenueRepositoryServiceImpl: VenueRepositoryService {
 
     public func saveFavorite(venueId: VenueId) async throws {
         try await persistenceService.saveFavorite(venueId: venueId)
+        notifyFavoriteChange()
     }
 
     public func removeFavorite(venueId: VenueId) async throws {
         try await persistenceService.removeFavorite(venueId: venueId)
+        notifyFavoriteChange()
     }
 
     public func isFavorite(id: VenueId) async throws -> Bool {
         let favoriteIds = try await persistenceService.fetchFavoriteIds()
         return favoriteIds.contains(id)
+    }
+
+    // MARK: - Private Methods
+
+    private func notifyFavoriteChange() {
+        favoriteChangesSubject.send()
     }
 }

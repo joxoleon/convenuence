@@ -36,7 +36,7 @@ struct SearchVenuesView: View {
                         .padding()
                 } else {
                     ScrollView {
-                        VenueListView(venues: viewModel.venues, currentLocation: viewModel.currentLocation)
+                        VenueListView(venues: viewModel.venues, currentLocation: viewModel.currentLocation, favoriteRepositoryDelegate: viewModel)
                     }
                     .padding(.top, 8)
                 }

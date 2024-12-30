@@ -5,6 +5,13 @@ import CoreLocation
 struct VenueListView: View {
     let venues: [Venue]
     let currentLocation: CLLocation
+    weak var favoriteRepositoryDelegate: FavoriteRepositoryDelegate?
+    
+    init(venues: [Venue], currentLocation: CLLocation, favoriteRepositoryDelegate: FavoriteRepositoryDelegate?) {
+        self.venues = venues
+        self.currentLocation = currentLocation
+        self.favoriteRepositoryDelegate = favoriteRepositoryDelegate
+    }
 
     // I know that the API can sort this, but in case of offline acces, I still want to display the correct distance and ordering
     var sortedVenues: [Venue] {
@@ -17,7 +24,7 @@ struct VenueListView: View {
         ScrollView {
             VStack(spacing: 16) {
                 ForEach(sortedVenues, id: \ .id) { venue in
-                    VenueCellView(venue: venue, currentLocation: currentLocation)
+                    VenueCellView(venue: venue, currentLocation: currentLocation, favoriteRepositoryDelegate: favoriteRepositoryDelegate)
                         .padding(.horizontal)
                 }
             }
@@ -38,7 +45,8 @@ struct VenueListView_Previews: PreviewProvider {
                     Venue.sample2,
                     Venue.sample3
                 ],
-                currentLocation: CLLocation(latitude: 40.7128, longitude: -74.0060)
+                currentLocation: CLLocation(latitude: 40.7128, longitude: -74.0060),
+                favoriteRepositoryDelegate: nil
             )
         }
     }

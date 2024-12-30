@@ -3,17 +3,8 @@ import CoreLocation
 import Combine
 import CVCore
 
-protocol SearchVenuesViewModelProtocol: ObservableObject {
-    var searchQuery: String { get set }
-    var venues: [Venue] { get }
-    var isLoading: Bool { get }
-    var errorMessage: String? { get }
-    var currentLocation: CLLocation { get }
-    func fetchVenues()
-}
-
-class SearchVenuesViewModel: SearchVenuesViewModelProtocol {
-
+@MainActor
+class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
     // MARK: - Bindable Properties
 
     @Published var searchQuery: String = "" {
@@ -47,42 +38,46 @@ class SearchVenuesViewModel: SearchVenuesViewModelProtocol {
         self.debouncer = Debouncer(delay: debounceInterval)
         self.currentLocation = userLocationService.currentLocation
         bindSearchQuery()
+        bindFavoriteChanges()
     }
 
     // MARK: - Public Methods
 
     func fetchVenues() {
         guard !searchQuery.isEmpty else {
-            DispatchQueue.main.async {
-                self.venues = []
-            }
+            venues = []
             return
         }
 
-        DispatchQueue.main.async {
-            self.isLoading = true
-            self.errorMessage = nil
-        }
+        isLoading = true
+        errorMessage = nil
 
-        Task(priority: .background) { [weak self] in
-            guard let self = self else { return }
+        Task {
             do {
-                let location = self.userLocationService.currentLocation
-                let fetchedVenues = try await self.venueRepositoryService.searchVenues(at: location, query: self.searchQuery)
-
-                // Update venues and isLoading state on the main thread
-                DispatchQueue.main.async {
-                    self.venues = fetchedVenues
-                    self.isLoading = false
-                }
+                let location = currentLocation
+                let fetchedVenues = try await venueRepositoryService.searchVenues(at: location, query: searchQuery)
+                venues = fetchedVenues
+                isLoading = false
             } catch {
                 print("Error fetching venues: \(error)")
+                errorMessage = error.localizedDescription
+                isLoading = false
+            }
+        }
+    }
 
-                // Handle error and update the state on the main thread
-                DispatchQueue.main.async {
-                    self.errorMessage = error.localizedDescription
-                    self.isLoading = false
+    func setFavorite(for venueId: VenueId, to isFavorite: Bool) {
+        Task {
+            do {
+                if isFavorite {
+                    try await venueRepositoryService.saveFavorite(venueId: venueId)
+                } else {
+                    try await venueRepositoryService.removeFavorite(venueId: venueId)
                 }
+                await refreshVenuesFromCache()
+            } catch {
+                print("Error setting favorite: \(error)")
+                errorMessage = error.localizedDescription
             }
         }
     }
@@ -100,5 +95,22 @@ class SearchVenuesViewModel: SearchVenuesViewModelProtocol {
                 }
             }
             .store(in: &cancellables)
+    }
+
+    private func bindFavoriteChanges() {
+        venueRepositoryService.favoriteChangesPublisher
+            .sink { [weak self] in
+                Task { await self?.refreshVenuesFromCache() }
+            }
+            .store(in: &cancellables)
+    }
+
+    private func refreshVenuesFromCache() async {
+        do {
+            let cachedVenues = try await venueRepositoryService.searchVenuesFromCache(at: currentLocation, query: searchQuery)
+            venues = cachedVenues
+        } catch {
+            print("Error refreshing venues from cache: \(error)")
+        }
     }
 }

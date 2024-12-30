@@ -1,6 +1,7 @@
 import SwiftUI
 import CVCore
 
+@MainActor
 class MainTabViewModel: ObservableObject {
     let searchVenuesViewModel: SearchVenuesViewModel
 
