@@ -12,20 +12,21 @@ struct SearchVenuesView: View {
     }
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // Search Bar
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.accentBlue)
-                    TextField("Search venues", text: $viewModel.searchQuery)
-                        .textFieldStyle(PlainTextFieldStyle())
-                }
-                .padding()
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color(.systemGray6)))
-                .padding([.horizontal, .top])
-                .zIndex(1) // Ensure it stays above the list
+        VStack(spacing: 0) {
+            // Search Bar
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.accentBlue)
+                TextField("Search venues", text: $viewModel.searchQuery)
+                    .textFieldStyle(PlainTextFieldStyle())
+            }
+            .padding()
+            .background(RoundedRectangle(cornerRadius: 8).fill(Color(.systemGray6)))
+            .padding([.horizontal, .top])
+            .frame(maxWidth: .infinity) // Ensure it spans the entire width
+            .zIndex(1)
 
+            ZStack(alignment: .top) {
                 if viewModel.isLoading {
                     ProgressView()
                         .padding(.top)
@@ -40,15 +41,9 @@ struct SearchVenuesView: View {
                     .padding(.top, 8)
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("Search Venues")
-                        .font(.headline)
-                        .foregroundColor(.accentBlue)
-                }
-            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Fix alignment to prevent movement
         }
-        .navigationViewStyle(StackNavigationViewStyle()) // Ensure proper layout for single-column view
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Ensure everything remains at the top
     }
 }
 

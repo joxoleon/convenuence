@@ -3,7 +3,6 @@ import CoreLocation
 import Combine
 import CVCore
 
-// MARK: - SearchVenuesViewModelProtocol
 protocol SearchVenuesViewModelProtocol: ObservableObject {
     var searchQuery: String { get set }
     var venues: [Venue] { get }
@@ -13,12 +12,17 @@ protocol SearchVenuesViewModelProtocol: ObservableObject {
     func fetchVenues()
 }
 
-// MARK: - SearchVenuesViewModel
 class SearchVenuesViewModel: SearchVenuesViewModelProtocol {
 
     // MARK: - Bindable Properties
 
-    @Published var searchQuery: String = ""
+    @Published var searchQuery: String = "" {
+        didSet {
+            if searchQuery.isEmpty {
+                venues = [] // Reset venues immediately when the query is empty
+            }
+        }
+    }
     @Published private(set) var venues: [Venue] = []
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var errorMessage: String?
@@ -41,7 +45,7 @@ class SearchVenuesViewModel: SearchVenuesViewModelProtocol {
         self.venueRepositoryService = venueRepositoryService
         self.userLocationService = userLocationService
         self.debouncer = Debouncer(delay: debounceInterval)
-        self.currentLocation = CLLocation(latitude: 44.8191, longitude: 20.4154) // Default to New Belgrade
+        self.currentLocation = userLocationService.currentLocation
         bindSearchQuery()
     }
 
@@ -60,15 +64,14 @@ class SearchVenuesViewModel: SearchVenuesViewModelProtocol {
             self.errorMessage = nil
         }
 
-        Task(priority: .background) { // Perform the network task on a background thread
+        Task(priority: .background) { [weak self] in
+            guard let self = self else { return }
             do {
-                let location = userLocationService.currentLocation
-                let fetchedVenues = try await venueRepositoryService.searchVenues(at: location, query: self.searchQuery)
+                let location = self.userLocationService.currentLocation
+                let fetchedVenues = try await self.venueRepositoryService.searchVenues(at: location, query: self.searchQuery)
 
                 // Update venues and isLoading state on the main thread
-                DispatchQueue.main.async { [weak self] in
-                    guard let self = self else { return }
-                    self.currentLocation = userLocationService.currentLocation
+                DispatchQueue.main.async {
                     self.venues = fetchedVenues
                     self.isLoading = false
                 }
@@ -76,24 +79,21 @@ class SearchVenuesViewModel: SearchVenuesViewModelProtocol {
                 print("Error fetching venues: \(error)")
 
                 // Handle error and update the state on the main thread
-                DispatchQueue.main.async { [weak self] in
-                    guard let self = self else { return }
-                    self.currentLocation = self.userLocationService.currentLocation
-                    self.isLoading = false
+                DispatchQueue.main.async {
                     self.errorMessage = error.localizedDescription
+                    self.isLoading = false
                 }
             }
         }
     }
 
-
     // MARK: - Private Methods
 
     private func bindSearchQuery() {
         $searchQuery
-            .removeDuplicates() // Trigger only when the query actually changes
-            .filter { !$0.isEmpty } // Only act when there's a non-empty search query
-            .receive(on: DispatchQueue.main) // Ensure updates are on the main thread
+            .removeDuplicates()
+            .filter { !$0.isEmpty }
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.debouncer.run {
                     self?.fetchVenues()
