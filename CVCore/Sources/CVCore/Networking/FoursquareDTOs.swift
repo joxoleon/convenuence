@@ -126,6 +126,15 @@ public enum FoursquareDTO {
     }
 }
 
+// MARK: - Utility Extensions
+
+public extension FoursquareDTO.Photo {
+    // Intentionally resize them to be half resolution, because of caching and performance
+    var photoUrlHalfRes: URL {
+        return URL(string: prefix + "\(width / 2)x\(height / 2)" + suffix)!
+    }
+}
+
 
 // MARK: - Public extensions for sample data
 

@@ -71,7 +71,7 @@ public struct VenueDetail: Codable, Equatable {
     }
 
     public var photoUrls: [URL] {
-        return photos.compactMap { URL(string: "\($0.prefix)original\($0.suffix)") }
+        return photos.compactMap { $0.photoUrlHalfRes }
     }
 }
 
