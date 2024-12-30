@@ -106,7 +106,7 @@ public struct SearchVenuesRequest {
 }
 
 public struct SearchVenuesResponse: Codable {
-    public let results: [FoursqareDTO.Venue]
+    public let results: [FoursquareDTO.Venue]
 }
 
 // MARK: - Fetch Venue Details
@@ -127,4 +127,4 @@ public struct FetchVenueDetailsRequest {
     }
 }
 
-public typealias FetchVenueDetailsResponse = FoursqareDTO.VenueDetails
+public typealias FetchVenueDetailsResponse = FoursquareDTO.VenueDetails

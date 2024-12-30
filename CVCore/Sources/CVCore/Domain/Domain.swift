@@ -4,13 +4,13 @@ public typealias VenueId = String
 
 // MARK: - Venue
 public struct Venue: Codable, Equatable {
-    private let venueDto: FoursqareDTO.Venue
+    private let venueDto: FoursquareDTO.Venue
     
     public let id: VenueId
     public let name: String
     public let isFavorite: Bool
 
-    public init(fsdto: FoursqareDTO.Venue, isFavorite: Bool) {
+    public init(fsdto: FoursquareDTO.Venue, isFavorite: Bool) {
         self.venueDto = fsdto
         self.id = fsdto.id
         self.name = fsdto.name
@@ -27,14 +27,14 @@ public struct Venue: Codable, Equatable {
 }
 
 public struct VenueDetail: Codable, Equatable {
-    private let venueDetailDto: FoursqareDTO.VenueDetails
+    private let venueDetailDto: FoursquareDTO.VenueDetails
 
     public let id: VenueId
     public let name: String
     public let description: String?
     public let isFavorite: Bool
     
-    public init(fsdto: FoursqareDTO.VenueDetails, isFavorite: Bool) {
+    public init(fsdto: FoursquareDTO.VenueDetails, isFavorite: Bool) {
         self.venueDetailDto = fsdto
         self.id = fsdto.id
         self.name = fsdto.name

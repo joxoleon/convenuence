@@ -30,12 +30,6 @@ struct VenueCellView: View {
 
 struct VenueCellView_Previews: PreviewProvider {
     static var previews: some View {
-        VenueCellView(venue: Venue(
-            id: "1",
-            name: "Venue 1",
-            isFavorite: true,
-            categoryIconUrl: URL(string: "https://ss3.4sqi.net/img/categories_v2/food/pizza_64.png")
-            )
-        )
+        VenueCellView(venue: Venue.sample1)
     }
 }

@@ -31,7 +31,7 @@ final class VenueRepositoryServiceTests: XCTestCase {
             Venue.sample1
         ]
         mockApiClient.searchVenuesResult = SearchVenuesResponse(
-            results: [FoursqareDTO.Venue.sample1])
+            results: [FoursquareDTO.Venue.sample1])
         mockPersistenceService.fetchFavoriteIdsResult = []
 
         // Act
@@ -64,7 +64,7 @@ final class VenueRepositoryServiceTests: XCTestCase {
         // Arrange
         let venueId = "1"
         let expectedVenueDetail = VenueDetail.sample1
-        mockApiClient.fetchVenueDetailsResult = FoursqareDTO.VenueDetails.sample1
+        mockApiClient.fetchVenueDetailsResult = FoursquareDTO.VenueDetails.sample1
         mockPersistenceService.fetchFavoriteIdsResult = []
 
         // Act
