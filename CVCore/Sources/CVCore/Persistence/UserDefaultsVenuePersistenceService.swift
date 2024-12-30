@@ -15,10 +15,21 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
     private let searchResultsKey = "searchResults"
     private let venueKeyPrefix = "venue_"
     
+    // In-memory caches
+    private var favoriteIdsCache: [VenueId]?
+    private var venueDetailsCache: [VenueId: VenueDetail] = [:]
+    private var venuesCache: [VenueId: Venue] = [:]
+    private var searchResultsCache: [String: [VenueId]]?
+    
     // MARK: - Initializer
     
     public init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
+        // Initial fetch to populate caches
+        self.favoriteIdsCache = userDefaults.array(forKey: favoritesKey) as? [VenueId]
+        self.searchResultsCache = (try? fetchAllSearchResults()) ?? [:]
+        self.venueDetailsCache = (try? fetchAllVenueDetails().reduce(into: [:]) { $0[$1.id] = $1 }) ?? [:]
+        self.venuesCache = (try? fetchAllVenues().reduce(into: [:]) { $0[$1.id] = $1 }) ?? [:]
     }
     
     // MARK: - Favorites Operations
@@ -46,7 +57,12 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
     }
     
     public func fetchFavoriteIds() async throws -> [VenueId] {
-        return userDefaults.array(forKey: favoritesKey) as? [VenueId] ?? []
+        if let cachedFavoriteIds = favoriteIdsCache {
+            return cachedFavoriteIds
+        }
+        let favoriteIds = userDefaults.array(forKey: favoritesKey) as? [VenueId] ?? []
+        favoriteIdsCache = favoriteIds
+        return favoriteIds
     }
     
     public func fetchFavoriteVenues() async throws -> [Venue] {
@@ -60,12 +76,18 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
         let key = "\(venueDetailsKeyPrefix)\(venueDetail.id)"
         let data = try encoder.encode(venueDetail)
         userDefaults.set(data, forKey: key)
+        venueDetailsCache[venueDetail.id] = venueDetail
     }
     
     public func fetchVenueDetail(by id: VenueId) async throws -> VenueDetail? {
+        if let cachedDetail = venueDetailsCache[id] {
+            return cachedDetail
+        }
         let key = "\(venueDetailsKeyPrefix)\(id)"
         guard let data = userDefaults.data(forKey: key) else { return nil }
-        return try decoder.decode(VenueDetail.self, from: data)
+        let venueDetail = try decoder.decode(VenueDetail.self, from: data)
+        venueDetailsCache[id] = venueDetail
+        return venueDetail
     }
     
     public func fetchVenueDetails(by ids: [VenueId]?) async throws -> [VenueDetail] {
@@ -104,6 +126,7 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
         let key = "\(venueKeyPrefix)\(venue.id)"
         let data = try encoder.encode(venue)
         userDefaults.set(data, forKey: key)
+        venuesCache[venue.id] = venue
     }
 
     public func saveVenues(_ venues: [Venue]) async throws {
@@ -118,6 +141,7 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
             let key = "\(venueKeyPrefix)\(venue.id)"
             let data = try encoder.encode(venue)
             encodedVenues[key] = data
+            venuesCache[venue.id] = venue
         }
 
         // Save all encoded venues to UserDefaults in a single operation
@@ -125,9 +149,14 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
     }
     
     public func fetchVenue(by id: VenueId) async throws -> Venue? {
+        if let cachedVenue = venuesCache[id] {
+            return cachedVenue
+        }
         let key = "\(venueKeyPrefix)\(id)"
         guard let data = userDefaults.data(forKey: key) else { return nil }
-        return try decoder.decode(Venue.self, from: data)
+        let venue = try decoder.decode(Venue.self, from: data)
+        venuesCache[id] = venue
+        return venue
     }
 
     public func fetchVenues(by ids: [VenueId]?) async throws -> [Venue] {
@@ -166,9 +195,13 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
         var results = try fetchAllSearchResults()
         results[request.query] = venueIds
         try saveAllSearchResults(results)
+        searchResultsCache = results
     }
     
     public func fetchSearchResults(for request: SearchVenuesRequest) async throws -> [VenueId]? {
+        if let cachedResults = searchResultsCache {
+            return cachedResults[request.query]
+        }
         return try fetchAllSearchResults()[request.query]
     }
     
@@ -183,6 +216,7 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
         let venueDetail = VenueDetail(venueDetail: vd, isFavorite: isFavorite)
         let newData = try encoder.encode(venueDetail)
         userDefaults.set(newData, forKey: "\(venueDetailsKeyPrefix)\(venueId)")
+        venueDetailsCache[venueId] = venueDetail
     }
     
     private func updateVenueFavoriteFlag(venueId: VenueId, isFavorite: Bool) throws {
@@ -193,10 +227,12 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
         let newVenue = Venue(venue: venue, isFavorite: isFavorite)
         let newData = try encoder.encode(newVenue)
         userDefaults.set(newData, forKey: "\(venueKeyPrefix)\(venueId)")
+        venuesCache[venueId] = newVenue
     }
     
     private func saveFavoriteIds(_ favoriteIds: [VenueId]) throws {
         userDefaults.set(favoriteIds, forKey: favoritesKey)
+        favoriteIdsCache = favoriteIds
     }
     
     private func fetchAllVenueDetails() throws -> [VenueDetail] {
@@ -204,6 +240,7 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
         for (key, value) in userDefaults.dictionaryRepresentation() {
             if key.hasPrefix(venueDetailsKeyPrefix), let data = value as? Data, let detail = try? decoder.decode(VenueDetail.self, from: data) {
                 details.append(detail)
+                venueDetailsCache[detail.id] = detail
             }
         }
         return details
@@ -214,21 +251,27 @@ public final class UserDefaultsVenuePersistenceService: VenuePersistenceService 
         for (key, value) in userDefaults.dictionaryRepresentation() {
             if key.hasPrefix(venueKeyPrefix), let data = value as? Data, let venue = try? decoder.decode(Venue.self, from: data) {
                 venues.append(venue)
+                venuesCache[venue.id] = venue
             }
         }
         return venues
     }
     
     private func fetchAllSearchResults() throws -> [String: [VenueId]] {
+        if let cachedResults = searchResultsCache {
+            return cachedResults
+        }
         guard let data = userDefaults.data(forKey: searchResultsKey),
               let results = try? decoder.decode([String: [VenueId]].self, from: data) else {
             return [:]
         }
+        searchResultsCache = results
         return results
     }
     
     private func saveAllSearchResults(_ results: [String: [VenueId]]) throws {
         let data = try encoder.encode(results)
         userDefaults.set(data, forKey: searchResultsKey)
+        searchResultsCache = results
     }
 }
