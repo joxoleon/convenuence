@@ -83,6 +83,27 @@ public enum FoursquareDTO {
         public let suffix: String
     }
     
+    // MARK: - Photo
+
+    public struct Photo: Codable, Equatable {
+        public let id: String
+        public let createdAt: String
+        public let prefix: String
+        public let suffix: String
+        public let width: Int
+        public let height: Int
+        public let classifications: [String]
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case createdAt = "created_at"
+            case prefix
+            case suffix
+            case width
+            case height
+            case classifications
+        }
+    }
     
     // MARK: - SearchResponse
     
@@ -308,4 +329,38 @@ extension FoursquareDTO.VenueDetails {
             )
         )
     }()
+}
+
+public extension FoursquareDTO.Photo {
+    static var samplePhotos: [FoursquareDTO.Photo] {
+        return [
+            FoursquareDTO.Photo(
+                id: "1",
+                createdAt: "2021-01-01T00:00:00.000Z",
+                prefix: "https://fastly.4sqi.net/img/general/",
+                suffix: "/114125945_hzePHG7Ihzwzf7f7IWTvzPoofQZY0X_g_a6msmw77eM.jpg",
+                width: 1440,
+                height: 1440,
+                classifications: ["food"]
+            ),
+            FoursquareDTO.Photo(
+                id: "2",
+                createdAt: "2021-01-01T00:00:00.000Z",
+                prefix: "https://fastly.4sqi.net/img/general/",
+                suffix: "/17083157_0LoS8OPBG-iWPvpW9mLQiMDOs548ynXrpuTw2wOygtw.jpg",
+                width: 1440,
+                height: 1920,
+                classifications: ["food"]
+            ),
+            FoursquareDTO.Photo(
+                id: "3",
+                createdAt: "2021-01-01T00:00:00.000Z",
+                prefix: "https://fastly.4sqi.net/img/general/",
+                suffix: "/18793733_-4Eqlil7HNN7lFwKM9vYGLfvShwWXsUe2j2KkpHPrTI.jpg",
+                width: 1440,
+                height: 1440,
+                classifications: ["indoor"]
+            )
+        ]
+    }
 }

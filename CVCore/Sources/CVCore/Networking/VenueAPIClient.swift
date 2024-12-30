@@ -31,6 +31,21 @@ public protocol VenueAPIClient {
        - `VenueAPIClientError.apiError` if the API returns an error response.
      */
     func fetchVenueDetails(request: FetchVenueDetailsRequest) async throws -> FetchVenueDetailsResponse
+
+    /**
+     Fetches photos for a specific venue.
+
+     This method sends a request to the Foursquare Venue API to retrieve photos of a venue identified by its ID.
+
+     - Parameter request: An instance of `FetchVenuePhotosRequest` containing the ID of the venue whose photos are being requested.
+     - Returns: An instance of `FetchVenuePhotosResponse`, which includes a list of photos for the specified venue.
+     - Throws:
+       - `VenueAPIClientError.networkError` if a network error occurs.
+       - `VenueAPIClientError.invalidResponse` if the server response is invalid (e.g., not a 200 HTTP status).
+       - `VenueAPIClientError.decodingError` if the response data cannot be decoded into the expected model.
+       - `VenueAPIClientError.apiError` if the API returns an error response.
+     */
+    func fetchVenuePhotos(request: FetchVenuePhotosRequest) async throws -> FetchVenuePhotosResponse
 }
 
 public class VenueAPIClientImpl: VenueAPIClient {
@@ -62,6 +77,14 @@ public class VenueAPIClientImpl: VenueAPIClient {
         return try await apiClient.performRequest(
             url: url, queryItems: request.queryItems, authorizationHeader: authorizationHeader,
             responseType: FetchVenueDetailsResponse.self
+        )
+    }
+
+    public func fetchVenuePhotos(request: FetchVenuePhotosRequest) async throws -> FetchVenuePhotosResponse {
+        let url = request.url
+        return try await apiClient.performRequest(
+            url: url, queryItems: request.queryItems, authorizationHeader: authorizationHeader,
+            responseType: FetchVenuePhotosResponse.self
         )
     }
 }
@@ -129,3 +152,25 @@ public struct FetchVenueDetailsRequest {
 }
 
 public typealias FetchVenueDetailsResponse = FoursquareDTO.VenueDetails
+
+// MARK: - Fetch Venue Photos
+
+public struct FetchVenuePhotosRequest {
+    let id: String
+
+    public init(id: String) {
+        self.id = id
+    }
+
+    var url: URL {
+        return URL(string: "https://api.foursquare.com/v3/places/\(id)/photos")!
+    }
+
+    var queryItems: [URLQueryItem]? {
+        return nil
+    }
+}
+
+public struct FetchVenuePhotosResponse: Codable {
+    public let photos: [FoursquareDTO.Photo]
+}

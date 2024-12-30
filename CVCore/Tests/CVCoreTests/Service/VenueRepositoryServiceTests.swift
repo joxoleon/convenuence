@@ -66,6 +66,7 @@ final class VenueRepositoryServiceTests: XCTestCase {
         let venueId = "1"
         let expectedVenueDetail = VenueDetail.sample1
         mockApiClient.fetchVenueDetailsResult = FoursquareDTO.VenueDetails.sample1
+        mockApiClient.fetchVenuePhotosResult = FetchVenuePhotosResponse(photos: FoursquareDTO.Photo.samplePhotos)
         mockPersistenceService.fetchFavoriteIdsResult = []
 
         // Act

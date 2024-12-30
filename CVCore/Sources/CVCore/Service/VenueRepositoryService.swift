@@ -82,9 +82,9 @@ public final class VenueRepositoryServiceImpl: VenueRepositoryService {
         do {
             // Try fetching from the network
             let response: FetchVenueDetailsResponse = try await apiClient.fetchVenueDetails(request: FetchVenueDetailsRequest(id: id))
+            let photosResponse: FetchVenuePhotosResponse = try await apiClient.fetchVenuePhotos(request: FetchVenuePhotosRequest(id: id))
             let isFavorite = favoriteIds.contains(response.id)
-            // TODO: Handle fetch photo URLs if I'm going to use them at all!
-            let venueDetail = VenueDetail(fsdto: response, isFavorite: isFavorite)
+            let venueDetail = VenueDetail(fsdto: response, photos: photosResponse.photos, isFavorite: isFavorite)
             try await persistenceService.saveVenueDetail(venueDetail)
             return venueDetail
         } catch {

@@ -48,18 +48,20 @@ public struct Venue: Codable, Equatable {
 
 public struct VenueDetail: Codable, Equatable {
     private let venueDetailDto: FoursquareDTO.VenueDetails
+    private let photos: [FoursquareDTO.Photo]
 
     public let id: VenueId
     public let isFavorite: Bool
     
-    public init(fsdto: FoursquareDTO.VenueDetails, isFavorite: Bool) {
+    public init(fsdto: FoursquareDTO.VenueDetails, photos: [FoursquareDTO.Photo], isFavorite: Bool) {
         self.venueDetailDto = fsdto
+        self.photos = photos
         self.id = fsdto.id
         self.isFavorite = isFavorite
     }
 
     public init(venueDetail: VenueDetail, isFavorite: Bool) {
-        self.init(fsdto: venueDetail.venueDetailDto, isFavorite: isFavorite)
+        self.init(fsdto: venueDetail.venueDetailDto, photos: venueDetail.photos, isFavorite: isFavorite)
     }
 
     // MARK: - Computed Properties
@@ -68,12 +70,12 @@ public struct VenueDetail: Codable, Equatable {
         return venueDetailDto.name
     }
 
-
+    public var photoUrls: [URL] {
+        return photos.compactMap { URL(string: "\($0.prefix)original\($0.suffix)") }
+    }
 }
 
 // MARK: - Utility Functions
-
-// MARK Function as deprecated
 
 private func calculateDistanceMeters(from location: CLLocation, to coordinate: FoursquareDTO.Coordinate) -> Double {
     let venueLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
@@ -106,14 +108,14 @@ public extension Venue {
 
 public extension VenueDetail {
     static var sample1: VenueDetail {
-        return VenueDetail(fsdto: .sample1, isFavorite: false)
+        return VenueDetail(fsdto: .sample1, photos: FoursquareDTO.Photo.samplePhotos, isFavorite: false)
     }
 
     static var sample2: VenueDetail {
-        return VenueDetail(fsdto: .sample2, isFavorite: true)
+        return VenueDetail(fsdto: .sample2, photos: FoursquareDTO.Photo.samplePhotos, isFavorite: true)
     }
 
     static var sample3: VenueDetail {
-        return VenueDetail(fsdto: .sample3, isFavorite: false)
+        return VenueDetail(fsdto: .sample3, photos: FoursquareDTO.Photo.samplePhotos, isFavorite: false)
     }
 }
