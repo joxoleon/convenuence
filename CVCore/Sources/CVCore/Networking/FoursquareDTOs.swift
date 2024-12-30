@@ -10,6 +10,7 @@ public enum FoursquareDTO {
         public let name: String
         public let location: Location
         public let categories: [Category]
+        public let geocodes: Geocodes?
         
         enum CodingKeys: String, CodingKey {
             case id = "fsq_id"
