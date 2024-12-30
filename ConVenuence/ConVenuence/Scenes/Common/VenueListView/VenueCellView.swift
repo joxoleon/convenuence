@@ -76,6 +76,7 @@ struct VenueCellView: View {
 
 // MARK: - Custom Views and Delegates
 
+@MainActor
 protocol FavoriteRepositoryDelegate: AnyObject {
     func setFavorite(for venueId: VenueId, to isFavorite: Bool)
 }
