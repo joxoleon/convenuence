@@ -1,4 +1,5 @@
 import XCTest
+
 @testable import CVCore
 
 final class VenueRepositoryServiceTests: XCTestCase {
@@ -11,7 +12,8 @@ final class VenueRepositoryServiceTests: XCTestCase {
         super.setUp()
         mockApiClient = MockVenueAPIClient()
         mockPersistenceService = MockVenuePersistenceService()
-        venueRepositoryService = VenueRepositoryServiceImpl(apiClient: mockApiClient, persistenceService: mockPersistenceService)
+        venueRepositoryService = VenueRepositoryServiceImpl(
+            apiClient: mockApiClient, persistenceService: mockPersistenceService)
     }
 
     override func tearDown() {
@@ -23,9 +25,39 @@ final class VenueRepositoryServiceTests: XCTestCase {
 
     func testSearchVenuesSuccess() async throws {
         // Arrange
-        let request = SearchVenuesRequest(query: "coffee", location: (latitude: 40.7128, longitude: -74.0060))
-        let expectedVenues = [Venue(id: "1", name: "Coffee Shop", isFavorite: false, categoryIconUrl: nil)]
-        mockApiClient.searchVenuesResult = SearchVenuesResponse(results: expectedVenues.map { FoursqareDTO.Venue(id: $0.id, name: $0.name, location: FoursqareDTO.Location(address: "", formatted_address: "", locality: "", postcode: "", region: "", country: ""), categories: [] ) })
+        let request = SearchVenuesRequest(
+            query: "coffee", location: (latitude: 40.7128, longitude: -74.0060))
+        let expectedVenues = [
+            Venue(
+                id: "1",
+                name: "Coffee Shop",
+                isFavorite: false,
+                categoryIconUrl: URL(
+                    string: "https://ss3.4sqi.net/img/categories_v2/food/pizza_64.png")
+                )
+        ]
+        mockApiClient.searchVenuesResult = SearchVenuesResponse(
+            results: expectedVenues.map {
+                FoursqareDTO.Venue(
+                    id: $0.id, name: $0.name,
+                    location: FoursqareDTO.Location(
+                        address: "", 
+                        formatted_address: "", 
+                        locality: "", 
+                        postcode: "", 
+                        region: "",
+                        country: ""
+                    ),
+                    categories: [
+                        FoursqareDTO.Category(
+                            id: 13064, 
+                            name: "Pizzeria", 
+                            short_name: "Pizza",
+                            icon: FoursqareDTO.Icon(
+                                prefix: "https://ss3.4sqi.net/img/categories_v2/food/pizza_",
+                                suffix: ".png"))
+                    ])
+            })
         mockPersistenceService.fetchFavoriteIdsResult = []
 
         // Act
@@ -38,10 +70,16 @@ final class VenueRepositoryServiceTests: XCTestCase {
 
     func testSearchVenuesNetworkFailure() async throws {
         // Arrange
-        let request = SearchVenuesRequest(query: "coffee", location: (latitude: 40.7128, longitude: -74.0060))
+        let request = SearchVenuesRequest(
+            query: "coffee", location: (latitude: 40.7128, longitude: -74.0060))
         mockApiClient.searchVenuesResult = nil
         mockPersistenceService.fetchSearchResultsResult = ["1"]
-        let expectedVenues = [Venue(id: "1", name: "Coffee Shop", isFavorite: false, categoryIconUrl: nil)]
+        let expectedVenues = [
+            Venue(
+                id: "1", name: "Coffee Shop", isFavorite: false,
+                categoryIconUrl: URL(
+                    string: "https://ss3.4sqi.net/img/categories_v2/food/pizza_64.png"))
+        ]
         mockPersistenceService.fetchVenuesResult = expectedVenues
 
         // Act
@@ -54,8 +92,16 @@ final class VenueRepositoryServiceTests: XCTestCase {
     func testGetVenueDetailsSuccess() async throws {
         // Arrange
         let venueId = "1"
-        let expectedVenueDetail = VenueDetail(id: venueId, name: "Coffee Shop", description: "A nice place", isFavorite: false, photoUrls: [])
-        mockApiClient.fetchVenueDetailsResult = FoursqareDTO.VenueDetails(id: venueId, name: "Coffee Shop", description: "A nice place", location: FoursqareDTO.Location(address: "", formatted_address: "", locality: "", postcode: "", region: "", country: ""), categories: [], geocodes: FoursqareDTO.Geocodes(main: FoursqareDTO.Coordinate(latitude: 0, longitude: 0)))
+        let expectedVenueDetail = VenueDetail(
+            id: venueId, name: "Coffee Shop", description: "A nice place", isFavorite: false,
+            photoUrls: [])
+        mockApiClient.fetchVenueDetailsResult = FoursqareDTO.VenueDetails(
+            id: venueId, name: "Coffee Shop", description: "A nice place",
+            location: FoursqareDTO.Location(
+                address: "", formatted_address: "", locality: "", postcode: "", region: "",
+                country: ""), categories: [],
+            geocodes: FoursqareDTO.Geocodes(
+                main: FoursqareDTO.Coordinate(latitude: 0, longitude: 0)))
         mockPersistenceService.fetchFavoriteIdsResult = []
 
         // Act
@@ -70,7 +116,9 @@ final class VenueRepositoryServiceTests: XCTestCase {
         // Arrange
         let venueId = "1"
         mockApiClient.fetchVenueDetailsResult = nil
-        let expectedVenueDetail = VenueDetail(id: venueId, name: "Coffee Shop", description: "A nice place", isFavorite: false, photoUrls: [])
+        let expectedVenueDetail = VenueDetail(
+            id: venueId, name: "Coffee Shop", description: "A nice place", isFavorite: false,
+            photoUrls: [])
         mockPersistenceService.fetchVenueDetailResult = expectedVenueDetail
 
         // Act
@@ -117,7 +165,12 @@ final class VenueRepositoryServiceTests: XCTestCase {
 
     func testGetFavorites() async throws {
         // Arrange
-        let expectedFavorites = [Venue(id: "1", name: "Coffee Shop", isFavorite: true, categoryIconUrl: nil)]
+        let expectedFavorites = [
+            Venue(
+                id: "1", name: "Coffee Shop", isFavorite: true,
+                categoryIconUrl: URL(
+                    string: "https://ss3.4sqi.net/img/categories_v2/food/pizza_64.png"))
+        ]
         mockPersistenceService.fetchFavoriteVenuesResult = expectedFavorites
 
         // Act

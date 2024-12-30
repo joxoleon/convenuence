@@ -21,99 +21,68 @@ class VenueAPIClientTests: XCTestCase {
         super.tearDown()
     }
 
+    func loadJSONFromFile(named fileName: String) -> Data {
+        guard let url = Bundle.module.url(forResource: fileName, withExtension: "json") else {
+            fatalError("Unable to find \(fileName).json in the test bundle.")
+        }
+        do {
+            return try Data(contentsOf: url)
+        } catch {
+            fatalError("Unable to load \(fileName).json from the test bundle: \(error)")
+        }
+    }
+
     func testSearchVenuesSuccess() async throws {
         let url = URL(string: "https://api.foursquare.com/v3/places/search")!
         let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)
-        let data = """
-        {
-            "results": [
-                {
-                    "fsq_id": "123",
-                    "name": "Coffee Shop",
-                    "location": {
-                        "address": "123 Main St",
-                        "formatted_address": "123 Main St, New York, NY 10001",
-                        "locality": "New York",
-                        "postcode": "10001",
-                        "region": "NY",
-                        "country": "US"
-                    }
-                    "categories": [
-                        {
-                        "id": 13064,
-                        "name": "Pizzeria",
-                        "short_name": "Pizza",
-                        "plural_name": "Pizzerias",
-                        "icon": {
-                            "prefix": "https://ss3.4sqi.net/img/categories_v2/food/pizza_",
-                            "suffix": ".png"
-                        }
-                        }
-                    ],
-                    "
-                }
-            ]
-        }
-        """.data(using: .utf8)
+        let data = loadJSONFromFile(named: "SearchVenuesResponse")
         
         URLProtocolMock.testURLs[url] = (response, data, nil)
         
-        let request = SearchVenuesRequest(query: "coffee", location: (latitude: 40.748817, longitude: -73.985428))
+        let request = SearchVenuesRequest(query: "pizza", location: (latitude: 44.8196, longitude: 20.4251))
         let result = try await apiClient.searchVenues(request: request)
         
         XCTAssertEqual(result.results.count, 1)
         XCTAssertEqual(result.results.first?.id, "123")
         XCTAssertEqual(result.results.first?.name, "Coffee Shop")
+        XCTAssertEqual(result.results.first?.location.address, "123 Main St")
+        XCTAssertEqual(result.results.first?.location.formatted_address, "123 Main St, New York, NY 10001")
+        XCTAssertEqual(result.results.first?.location.locality, "New York")
+        XCTAssertEqual(result.results.first?.location.postcode, "10001")
+        XCTAssertEqual(result.results.first?.location.region, "NY")
+        XCTAssertEqual(result.results.first?.location.country, "US")
+        XCTAssertEqual(result.results.first?.categories.first?.id, 13064)
+        XCTAssertEqual(result.results.first?.categories.first?.name, "Pizzeria")
+        XCTAssertEqual(result.results.first?.categories.first?.short_name, "Pizza")
+        XCTAssertEqual(result.results.first?.categories.first?.icon.prefix, "https://ss3.4sqi.net/img/categories_v2/food/pizza_")
+        XCTAssertEqual(result.results.first?.categories.first?.icon.suffix, ".png")
     }
 
     func testFetchVenueDetailsSuccess() async throws {
-        let url = URL(string: "https://api.foursquare.com/v3/places/598ee2aa2955134db1635b30")!
+        let url = URL(string: "https://api.foursquare.com/v3/places/4ea1ad6fd3e32e6867a62ed9")!
         let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)
-        let data = """
-        {
-            "fsq_id": "598ee2aa2955134db1635b30",
-            "name": "Venue Name",
-            "location": {
-                "address": "123 Main St",
-                "formatted_address": "123 Main St, New York, NY 10001",
-                "locality": "New York",
-                "postcode": "10001",
-                "region": "NY",
-                "country": "US"
-            },
-            "description": "A great place to visit",
-            "categories": [
-                {
-                    "id": 1,
-                    "name": "Category Name",
-                    "short_name": "Category",
-                    "icon": {
-                        "prefix": "https://example.com/",
-                        "suffix": ".png"
-                    }
-                }
-            ],
-            "geocodes": {
-                "main": {
-                    "latitude": 40.748817,
-                    "longitude": -73.985428
-                }
-            }
-        }
-        """.data(using: .utf8)
+        let data = loadJSONFromFile(named: "FetchVenueDetailsResponse")
         
         URLProtocolMock.testURLs[url] = (response, data, nil)
         
-        let request = FetchVenueDetailsRequest(id: "598ee2aa2955134db1635b30")
+        let request = FetchVenueDetailsRequest(id: "4ea1ad6fd3e32e6867a62ed9")
         let result = try await apiClient.fetchVenueDetails(request: request)
         
-        XCTAssertEqual(result.id, "598ee2aa2955134db1635b30")
-        XCTAssertEqual(result.name, "Venue Name")
-        XCTAssertEqual(result.location.address, "123 Main St")
-        XCTAssertEqual(result.description, "A great place to visit")
-        XCTAssertEqual(result.categories.first?.name, "Category Name")
-        XCTAssertEqual(result.geocodes.main.latitude, 40.748817)
-        XCTAssertEqual(result.geocodes.main.longitude, -73.985428)
+        XCTAssertEqual(result.id, "4ea1ad6fd3e32e6867a62ed9")
+        XCTAssertEqual(result.name, "Pizza Bar")
+        XCTAssertEqual(result.location.address, "Bulevar Mihajla Pupina 165v")
+        XCTAssertEqual(result.location.formatted_address, "Bulevar Mihajla Pupina 165v (Bulevar umetnosti), 11070 Београд")
+        XCTAssertEqual(result.location.locality, "Београд")
+        XCTAssertEqual(result.location.postcode, "11070")
+        XCTAssertEqual(result.location.region, "Central Serbia")
+        XCTAssertEqual(result.location.country, "RS")
+        XCTAssertEqual(result.categories.first?.id, 13064)
+        XCTAssertEqual(result.categories.first?.name, "Pizzeria")
+        XCTAssertEqual(result.categories.first?.short_name, "Pizza")
+        XCTAssertEqual(result.categories.first?.icon.prefix, "https://ss3.4sqi.net/img/categories_v2/food/pizza_")
+        XCTAssertEqual(result.categories.first?.icon.suffix, ".png")
+        XCTAssertEqual(result.geocodes.main.latitude, 44.821935)
+        XCTAssertEqual(result.geocodes.main.longitude, 20.416514)
     }
 
     func testSearchVenuesNetworkError() async throws {
@@ -138,12 +107,12 @@ class VenueAPIClientTests: XCTestCase {
     }
 
     func testFetchVenueDetailsInvalidResponse() async throws {
-        let url = URL(string: "https://api.foursquare.com/v3/places/598ee2aa2955134db1635b30")!
+        let url = URL(string: "https://api.foursquare.com/v3/places/4ea1ad6fd3e32e6867a62ed9")!
         let response = HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields: nil)
         
         URLProtocolMock.testURLs[url] = (response, nil, nil)
         
-        let request = FetchVenueDetailsRequest(id: "598ee2aa2955134db1635b30")
+        let request = FetchVenueDetailsRequest(id: "4ea1ad6fd3e32e6867a62ed9")
         
         do {
             _ = try await apiClient.fetchVenueDetails(request: request)

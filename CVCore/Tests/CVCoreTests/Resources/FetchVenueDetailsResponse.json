@@ -1,0 +1,36 @@
+{
+  "fsq_id": "4ea1ad6fd3e32e6867a62ed9",
+  "categories": [
+    {
+      "id": 13064,
+      "name": "Pizzeria",
+      "short_name": "Pizza",
+      "plural_name": "Pizzerias",
+      "icon": {
+        "prefix": "https://ss3.4sqi.net/img/categories_v2/food/pizza_",
+        "suffix": ".png"
+      }
+    }
+  ],
+  "chains": [],
+  "closed_bucket": "VeryLikelyOpen",
+  "geocodes": {
+    "main": {
+      "latitude": 44.821935,
+      "longitude": 20.416514
+    }
+  },
+  "link": "/v3/places/4ea1ad6fd3e32e6867a62ed9",
+  "location": {
+    "address": "Bulevar Mihajla Pupina 165v",
+    "country": "RS",
+    "cross_street": "Bulevar umetnosti",
+    "formatted_address": "Bulevar Mihajla Pupina 165v (Bulevar umetnosti), 11070 Београд",
+    "locality": "Београд",
+    "postcode": "11070",
+    "region": "Central Serbia"
+  },
+  "name": "Pizza Bar",
+  "related_places": {},
+  "timezone": "Europe/Belgrade"
+}

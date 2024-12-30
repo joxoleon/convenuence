@@ -19,7 +19,7 @@ public struct Venue: Codable, Equatable, Hashable {
         self.id = fsdto.id
         self.name = fsdto.name
         self.isFavorite = isFavorite
-        self.categoryIconUrl = URL(string: fsdto.categories.first?.icon.prefix ?? "" + "64" + (fsdto.categories.first?.icon.suffix ?? ""))
+        self.categoryIconUrl = URL(string: (fsdto.categories.first?.icon.prefix ?? "") + "64" + (fsdto.categories.first?.icon.suffix ?? ""))    
     }
 }
 

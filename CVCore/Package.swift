@@ -18,6 +18,10 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "CVCoreTests",
-            dependencies: ["CVCore"]),
+            dependencies: ["CVCore"],
+            resources: [
+                .process("Resources")
+            ]
+        ),
     ]
 )

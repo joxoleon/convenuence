@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "fsq_id": "123",
+      "name": "Coffee Shop",
+      "location": {
+        "address": "123 Main St",
+        "formatted_address": "123 Main St, New York, NY 10001",
+        "locality": "New York",
+        "postcode": "10001",
+        "region": "NY",
+        "country": "US"
+      },
+      "categories": [
+        {
+          "id": 13064,
+          "name": "Pizzeria",
+          "short_name": "Pizza",
+          "plural_name": "Pizzerias",
+          "icon": {
+            "prefix": "https://ss3.4sqi.net/img/categories_v2/food/pizza_",
+            "suffix": ".png"
+          }
+        }
+      ]
+    }
+  ]
+}
