@@ -1,11 +1,12 @@
 import SwiftUI
-import CVCore
+import Kingfisher
 import CoreLocation
+import CVCore
 
 struct VenueCellView: View {
     let venue: Venue
     let currentLocation: CLLocation
-    
+
     var body: some View {
         ZStack {
             // Background using ThemeConstants
@@ -14,17 +15,23 @@ struct VenueCellView: View {
                 .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
             
             HStack {
-                // Category Icon
+                // Category Icon with Caching
                 if let imageUrl = venue.categoryIconUrl(resolution: 64) {
-                    AsyncImage(url: imageUrl) { image in
-                        image.resizable()
-                    } placeholder: {
-                        ProgressView()
-                    }
-                    .frame(width: 64, height: 64)
-                    .cornerRadius(8)
-                    .padding(.leading)
+                    KFImage(imageUrl)
+                        .resizable()
+                        .placeholder {
+                            ProgressView()
+                        }
+                        .retry(maxCount: 3, interval: .seconds(1))
+                        .cacheOriginalImage()
+                        .onFailure { _ in
+                            print("Failed to load image for URL: \(imageUrl)")
+                        }
+                        .frame(width: 64, height: 64)
+                        .cornerRadius(8)
+                        .padding(.leading)
                 } else {
+                    // Fallback for no URL
                     Rectangle()
                         .fill(Color.gray.opacity(0.5))
                         .frame(width: 64, height: 64)
@@ -70,7 +77,6 @@ struct FavoriteStarView: View {
             .shadow(color: isFavorite ? Color.accentPurple.opacity(0.6) : .clear, radius: 6, x: 0, y: 0)
     }
 }
-
 
 struct VenueCellView_Previews: PreviewProvider {
     static var previews: some View {
