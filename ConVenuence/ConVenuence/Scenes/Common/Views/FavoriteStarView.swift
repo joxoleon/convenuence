@@ -16,7 +16,7 @@ struct FavoriteStarView: View {
             delegate?.setFavorite(for: venueId, to: !isFavorite)
         }) {
             Image(systemName: isFavorite ? "star.fill" : "star")
-                .foregroundColor(.accentPurple)
+                .foregroundColor(.accentBlue)
                 .font(.title2)
                 .shadow(color: isFavorite ? Color.accentBlue.opacity(0.6) : .clear, radius: 6, x: 0, y: 0)
         }

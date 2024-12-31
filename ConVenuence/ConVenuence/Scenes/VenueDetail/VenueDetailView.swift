@@ -26,7 +26,6 @@ class VenueDetailViewModel: ObservableObject {
         self.venueId = venueId
         self.venueRepositoryService = venueRepositoryService
         self.userLocationService = userLocationService
-        fetchVenueDetail()
     }
 
     // MARK: - Public Methods

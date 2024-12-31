@@ -10,7 +10,8 @@
 [x] Add favorite feature to Venue Details Screen
 [x] Fix the warning for app orientations
 [x] Figure out what is happening with the launch screen and add one
-[ ] Fix network logging
+[x] Fix network logging
+[x] Remove duplicate networking calls
 [ ] Update error handling for all required edge cases: network failures, empty search results, API errors
 [ ] Test offline funcitonality
 [ ] Figure out if there is a way I can store the authorization header safely, if not omit it from the project

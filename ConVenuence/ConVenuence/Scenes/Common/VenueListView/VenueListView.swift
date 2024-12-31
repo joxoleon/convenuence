@@ -9,11 +9,13 @@ struct LazyView<Content: View>: View {
     let build: () -> Content
 
     init(_ build: @escaping () -> Content) {
+        print("Building navigation link")
         self.build = build
     }
 
     var body: Content {
-        build()
+        print("LazyViewBody")
+        return build()
     }
 }
 
