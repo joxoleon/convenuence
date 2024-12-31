@@ -14,6 +14,18 @@
 		<dict/>
 	</dict>
 	<key>UILaunchScreen</key>
-	<dict/>
+	<dict>
+		<key>UIColorName</key>
+		<string>CardBackground</string>
+		<key>UIImageName</key>
+		<string>cvlogo</string>
+		<key>UIImageRespectsSafeAreaInsets</key>
+		<true/>
+		<key>UINavigationBar</key>
+		<dict>
+			<key>UIImageName</key>
+			<string></string>
+		</dict>
+	</dict>
 </dict>
 </plist>
