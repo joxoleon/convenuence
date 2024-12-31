@@ -39,8 +39,11 @@ class VenueDetailViewModel: ObservableObject {
                 let detail = try await venueRepositoryService.getVenueDetails(id: venueId)
                 venueDetail = detail
                 isLoading = false
+            } catch let error as APIClientError {
+                errorMessage = error.userFriendlyMessage
+                isLoading = false
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = "An unexpected error occurred. Please try again later."
                 isLoading = false
             }
         }
@@ -65,9 +68,12 @@ extension VenueDetailViewModel: FavoriteRepositoryDelegate {
                 if let vd = venueDetail {
                     self.venueDetail = VenueDetail(venueDetail: vd, isFavorite: isFavorite)
                 }
-            } catch {
+            } catch let error as APIClientError {
                 print("Error setting favorite: \(error)")
-                errorMessage = error.localizedDescription
+                errorMessage = error.userFriendlyMessage
+            } catch {
+                print("Unexpected error setting favorite: \(error)")
+                errorMessage = "An unexpected error occurred. Please try again later."
             }
         }
     }
@@ -98,6 +104,7 @@ struct VenueDetailView: View {
                 Text(errorMessage)
                     .foregroundColor(.red)
                     .padding()
+                    .multilineTextAlignment(.center)
             } else if let venueDetail = viewModel.venueDetail {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
@@ -119,7 +126,7 @@ struct VenueDetailView: View {
                         
                         SeparatorView()
                         
-                        // Favorite Start
+                        // Favorite Star
                         HStack(spacing: 24) {
                             FavoriteStarView(
                                 venueId: viewModel.venueDetail?.id ?? "",
@@ -127,7 +134,7 @@ struct VenueDetailView: View {
                                 delegate: viewModel)
                             .frame(width: 32, height: 32)
                             
-                            Text("Mark this venue as favorite to have quick aceess to it within the Favorite Venues Screen.")
+                            Text("Mark this venue as favorite to have quick access to it within the Favorite Venues Screen.")
                                 .font(.subheadline)
                                 .foregroundColor(.secondaryText)
                         }

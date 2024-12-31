@@ -26,11 +26,27 @@ protocol APIClient {
     ) async throws -> T
 }
 
-enum APIClientError: Error {
+public enum APIClientError: Error {
     case networkError(Error)
     case invalidResponse(statusCode: Int, responseBody: String?)
     case decodingError(Error)
     case maxRetriesExceeded
+    case unknownError
+
+    public var userFriendlyMessage: String {
+        switch self {
+        case .networkError:
+            return "Network connection is unavailable. Please check your internet and try again."
+        case .invalidResponse(let statusCode, _):
+            return "Server returned an invalid response. (Error Code: \(statusCode))"
+        case .decodingError:
+            return "Failed to process the response. Please try again later."
+        case .maxRetriesExceeded:
+            return "Unable to complete the request after multiple attempts. Please try again later."
+        case .unknownError:
+            return "An unexpected error occurred. Please try again later."
+        }
+    }
 }
 
 class APIClientImpl: APIClient {

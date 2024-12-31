@@ -3,17 +3,22 @@ import CoreLocation
 import Combine
 import CVCore
 
-// MARK: - SearchVenuesView
 struct SearchVenuesView: View {
+    
+    // MARK: - Properties
+    
     @StateObject private var viewModel: SearchVenuesViewModel
 
+    // MARK: - Initializers
+    
     init(viewModel: SearchVenuesViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
 
+    // MARK: - Body
+    
     var body: some View {
         VStack(spacing: 0) {
-            // Search Bar
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.accentBlue)
@@ -23,7 +28,6 @@ struct SearchVenuesView: View {
             .padding()
             .background(RoundedRectangle(cornerRadius: 8).fill(Color.cardBackground))
             .padding([.horizontal, .top])
-            .frame(maxWidth: .infinity) // Ensure it spans the entire width
 
             ZStack {
                 if viewModel.isLoading {
@@ -32,21 +36,23 @@ struct SearchVenuesView: View {
                     Text(errorMessage)
                         .foregroundColor(.red)
                         .padding()
+                        .multilineTextAlignment(.center)
                 } else {
                     VenueListView(
                         venues: viewModel.venues,
                         currentLocation: viewModel.currentLocation,
                         favoriteRepositoryDelegate: viewModel
                     )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity) // Fill available space
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Prevent content shifting
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .background(Color.primaryBackground)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Keep everything pinned to the top
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
+
 
 // MARK: - Preview
 struct SearchVenuesView_Previews: PreviewProvider {

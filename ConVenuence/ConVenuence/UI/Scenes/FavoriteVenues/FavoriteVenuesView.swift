@@ -37,7 +37,7 @@ class FavoriteVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
                 let favoriteVenues = try await venueRepositoryService.getFavorites()
                 await updateFavorites(favoriteVenues)
             } catch {
-                await updateErrorState(with: error.localizedDescription)
+                await updateErrorState(with: "Something went wrong while loading favorites. Please try again.")
             }
         }
     }
@@ -52,11 +52,11 @@ class FavoriteVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
                 }
                 fetchFavorites() // Refresh the list after a change
             } catch {
-                await updateErrorState(with: error.localizedDescription)
+                await updateErrorState(with: "Unable to update favorite status. Please try again.")
             }
         }
     }
-    
+
     var currentUserLocation: CLLocation {
         userLocationService.currentLocation
     }
@@ -92,24 +92,24 @@ class FavoriteVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
 // MARK: - FavoritesView
 
 struct FavoriteVenuesView: View {
-    
+
     // MARK: - Properties
-    
+
     @StateObject private var viewModel: FavoriteVenuesViewModel
 
     // MARK: - Initializers
-    
+
     init(viewModel: FavoriteVenuesViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
-    
+
     // MARK: - Body
 
     var body: some View {
         ZStack {
             Color.primaryBackground
                 .ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
                 ZStack {
                     // Show loader only if the list is empty and still loading
@@ -119,6 +119,7 @@ struct FavoriteVenuesView: View {
                         Text(errorMessage)
                             .foregroundColor(.red)
                             .padding()
+                            .multilineTextAlignment(.center)
                     } else if viewModel.favorites.isEmpty {
                         VStack {
                             Spacer()
@@ -141,16 +142,16 @@ struct FavoriteVenuesView: View {
                                         VenueCellView(
                                             venue: venue,
                                             currentLocation: viewModel.currentUserLocation,
-                                            favoriteRepositoryDelegate: viewModel // Enable favorites toggling
+                                            favoriteRepositoryDelegate: viewModel
                                         )
                                     }
                                     .padding(.horizontal)
-                                    .transition(.opacity.combined(with: .slide)) // Smooth transitions
+                                    .transition(.opacity.combined(with: .slide))
                                 }
                             }
                             .padding(.top)
                         }
-                        .animation(.default, value: viewModel.favorites) // Animate changes to the list
+                        .animation(.default, value: viewModel.favorites)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -161,7 +162,6 @@ struct FavoriteVenuesView: View {
         }
     }
 }
-
 
 // MARK: - Preview
 

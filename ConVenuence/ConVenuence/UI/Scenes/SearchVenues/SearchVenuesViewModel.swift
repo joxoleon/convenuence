@@ -7,11 +7,11 @@ import CVCore
 class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
     
     // MARK: - Bindable Properties
-
+    
     @Published var searchQuery: String = "" {
         didSet {
             if searchQuery.isEmpty {
-                venues = [] // Reset venues immediately when the query is empty
+                venues = []
             }
         }
     }
@@ -21,14 +21,14 @@ class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
     @Published private(set) var currentLocation: CLLocation
 
     // MARK: - Properties
-
+    
     private let venueRepositoryService: VenueRepositoryService
     private let userLocationService: UserLocationService
     private var cancellables: Set<AnyCancellable> = []
     private let debouncer: Debouncer
 
     // MARK: - Initializers
-
+    
     init(
         venueRepositoryService: VenueRepositoryService,
         userLocationService: UserLocationService,
@@ -41,7 +41,7 @@ class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
         bindSearchQuery()
         bindFavoriteChanges()
     }
-
+    
     // MARK: - Public Methods
 
     func fetchVenues() {
@@ -59,9 +59,11 @@ class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
                 let fetchedVenues = try await venueRepositoryService.searchVenues(at: location, query: searchQuery)
                 venues = fetchedVenues
                 isLoading = false
+            } catch let error as APIClientError {
+                errorMessage = error.userFriendlyMessage
+                isLoading = false
             } catch {
-                print("Error fetching venues: \(error)")
-                errorMessage = error.localizedDescription
+                errorMessage = "An unexpected error occurred. Please try again later."
                 isLoading = false
             }
         }
@@ -76,14 +78,15 @@ class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
                     try await venueRepositoryService.removeFavorite(venueId: venueId)
                 }
                 await refreshVenuesFromCache()
+            } catch let error as APIClientError {
+                errorMessage = error.userFriendlyMessage
             } catch {
-                print("Error setting favorite: \(error)")
-                errorMessage = error.localizedDescription
+                errorMessage = "An unexpected error occurred. Please try again later."
             }
         }
     }
-
-    // MARK: - Private Methods
+    
+    // MARK: - Private utility methods
 
     private func bindSearchQuery() {
         $searchQuery
@@ -110,8 +113,11 @@ class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
         do {
             let cachedVenues = try await venueRepositoryService.searchVenuesFromCache(at: currentLocation, query: searchQuery)
             venues = cachedVenues
+        } catch let error as APIClientError {
+            errorMessage = error.userFriendlyMessage
         } catch {
-            print("Error refreshing venues from cache: \(error)")
+            errorMessage = "An unexpected error occurred while refreshing cached data."
         }
     }
 }
+
