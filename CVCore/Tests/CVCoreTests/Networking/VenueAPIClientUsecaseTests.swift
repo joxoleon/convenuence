@@ -28,7 +28,7 @@ class VenueAPIClientUsecaseTests: XCTestCase {
     
     // func testSearchVenuesRealAPI() async throws {
     //     // Perform the real API call
-    //     let request = SearchVenuesRequest(query: "coffee", location: (latitude: 40.748817, longitude: -73.985428))
+    //     let request = SearchVenuesRequest(query: "coffee", location: .init(latitude: 40.7128, longitude: -74.0060))
     //     let response = try await apiClient.searchVenues(request: request)
 
     //     // Assertions

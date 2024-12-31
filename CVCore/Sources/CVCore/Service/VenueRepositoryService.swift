@@ -78,6 +78,7 @@ public final class VenueRepositoryServiceImpl: VenueRepositoryService {
     }
 
     public func getVenueDetails(id: VenueId) async throws -> VenueDetail {
+        print("Fetching venue details for id: \(id)")
         let favoriteIds = try await persistenceService.fetchFavoriteIds()
         do {
             // Try fetching from the network

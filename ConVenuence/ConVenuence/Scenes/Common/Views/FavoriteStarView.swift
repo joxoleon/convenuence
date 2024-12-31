@@ -18,7 +18,7 @@ struct FavoriteStarView: View {
             Image(systemName: isFavorite ? "star.fill" : "star")
                 .foregroundColor(.accentPurple)
                 .font(.title2)
-                .shadow(color: isFavorite ? Color.accentPurple.opacity(0.6) : .clear, radius: 6, x: 0, y: 0)
+                .shadow(color: isFavorite ? Color.accentBlue.opacity(0.6) : .clear, radius: 6, x: 0, y: 0)
         }
     }
 }

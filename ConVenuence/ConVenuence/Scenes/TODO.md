@@ -9,7 +9,7 @@
 [x] Add navigation
 [x] Add favorite feature to Venue Details Screen
 [x] Fix the warning for app orientations
-[ ] Figure out what is happening with the launch screen and add one
+[x] Figure out what is happening with the launch screen and add one
 [ ] Fix network logging
 [ ] Update error handling for all required edge cases: network failures, empty search results, API errors
 [ ] Test offline funcitonality
