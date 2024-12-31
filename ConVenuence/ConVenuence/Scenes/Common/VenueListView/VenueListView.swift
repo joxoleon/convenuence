@@ -2,6 +2,21 @@ import SwiftUI
 import CVCore
 import CoreLocation
 
+// When using navigation link, without a lazy view, all of the views are instantiated immediately.
+// For a list of detail views navigation, that would mean that immediately network requests for all of the details would be made (both photos and get place details).
+// SwiftUI navigation is the worst thing that has happened to **humanity**.
+struct LazyView<Content: View>: View {
+    let build: () -> Content
+
+    init(_ build: @escaping () -> Content) {
+        self.build = build
+    }
+
+    var body: Content {
+        build()
+    }
+}
+
 struct VenueListView: View {
     let venues: [Venue]
     let currentLocation: CLLocation
@@ -34,12 +49,16 @@ struct VenueListView: View {
         } else {
             ScrollView {
                 VStack(spacing: 16) {
-                    ForEach(sortedVenues, id: \ .id) { venue in
-                        NavigationLink(destination: VenueDetailView(viewModel: VenueDetailViewModel(
-                            venueId: venue.id,
-                            venueRepositoryService: ServiceLocator.shared.venueRepositoryService,
-                            userLocationService: ServiceLocator.shared.userLocationService
-                        ))) {
+                    ForEach(sortedVenues, id: \.id) { venue in
+                        NavigationLink(
+                            destination: LazyView {
+                                VenueDetailView(viewModel: VenueDetailViewModel(
+                                    venueId: venue.id,
+                                    venueRepositoryService: ServiceLocator.shared.venueRepositoryService,
+                                    userLocationService: ServiceLocator.shared.userLocationService
+                                ))
+                            }
+                        ) {
                             VenueCellView(
                                 venue: venue,
                                 currentLocation: currentLocation,

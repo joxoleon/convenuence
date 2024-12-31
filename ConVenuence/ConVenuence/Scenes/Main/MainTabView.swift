@@ -12,12 +12,16 @@ struct MainTabView: View {
 
     var body: some View {
         TabView {
-            SearchVenuesView(viewModel: viewModel.searchVenuesViewModel)
+            NavigationView {
+                SearchVenuesView(viewModel: viewModel.searchVenuesViewModel)
+            }
             .tabItem {
                 Label("Search", systemImage: "magnifyingglass")
             }
-
-            FavoriteVenuesView(viewModel: viewModel.favoriteVenuesViewModel)
+            
+            NavigationView {
+                FavoriteVenuesView(viewModel: viewModel.favoriteVenuesViewModel)
+            }
             .tabItem {
                 Label("Favorites", systemImage: "star")
             }

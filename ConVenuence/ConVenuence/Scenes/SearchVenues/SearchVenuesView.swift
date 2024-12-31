@@ -48,20 +48,6 @@ struct SearchVenuesView: View {
     }
 }
 
-// MARK: - Custom Progress View
-struct CenteredProgressView: View {
-    var body: some View {
-        VStack {
-            Spacer()
-            ProgressView()
-                .scaleEffect(1.5) // Make it slightly larger
-                .tint(.accentBlue) // Set color to accentBlue
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure centering
-    }
-}
-
 // MARK: - Preview
 struct SearchVenuesView_Previews: PreviewProvider {
     static var previews: some View {
