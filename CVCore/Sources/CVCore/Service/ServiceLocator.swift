@@ -37,6 +37,6 @@ public final class ServiceLocator {
 
     private func getAuthorizationHeader() -> String? {
         // TODO: Implement a secure way to store and retrieve the API key - DO NOT MERGE IN A HARD-CODED API KEY
-        return "fsq3YmUUOIyJI8dOKxZfTtnlkYSJZ1LIAahConcvUZnKS5I=" // Return the real API key here when running the app
+        return nil // Return the real API key here when running the app
     }
 }

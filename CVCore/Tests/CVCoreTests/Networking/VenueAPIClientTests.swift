@@ -4,7 +4,7 @@ import CoreLocation
 
 class VenueAPIClientTests: XCTestCase {
     private var apiClient: VenueAPIClientImpl!
-    private let authorizationHeader = "fsq3YmUUOIyJI8dOKxZfTtnlkYSJZ1LIAahConcvUZnKS5I="
+    private let authorizationHeader = "" // Working with mock network, so this can be empty
 
     override func setUp() {
         super.setUp()

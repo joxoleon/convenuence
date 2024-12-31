@@ -32,7 +32,7 @@ struct VenueListView: View {
 
     var sortedVenues: [Venue] {
         venues.sorted { (v2, v1) -> Bool in
-            v1.distance(from: currentLocation) > v2.distance(from: currentLocation)
+            (v1.distance(from: currentLocation) ?? Double.infinity) > (v2.distance(from: currentLocation) ?? Double.infinity)
         }
     }
 

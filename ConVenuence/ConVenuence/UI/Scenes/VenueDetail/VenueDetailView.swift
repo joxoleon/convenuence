@@ -16,6 +16,10 @@ class VenueDetailViewModel: ObservableObject {
 
     // MARK: - Properties
 
+    public var currentLocation: CLLocation {
+        userLocationService.currentLocation
+    }
+    
     private let venueRepositoryService: VenueRepositoryService
     private let userLocationService: UserLocationService
     private let venueId: VenueId
@@ -47,12 +51,6 @@ class VenueDetailViewModel: ObservableObject {
                 isLoading = false
             }
         }
-    }
-
-    func distanceFromCurrentLocation(to location: CLLocation) -> String {
-        let currentLocation = userLocationService.currentLocation
-        let distance = currentLocation.distance(from: location)
-        return distance < 1000 ? "\(Int(distance))m" : String(format: "%.1fkm", distance / 1000.0)
     }
 }
 
@@ -157,11 +155,11 @@ struct VenueDetailView: View {
                                     .foregroundColor(.secondaryText)
                             }
 
-                            if let location = venueDetail.clLocation {
+                            if let distanceString = viewModel.venueDetail?.distanceString(from: viewModel.currentLocation) {
                                 HStack(spacing: 8) {
                                     Image(systemName: "location.fill")
                                         .foregroundColor(.accentBlue)
-                                    Text(viewModel.distanceFromCurrentLocation(to: location))
+                                    Text(distanceString)
                                         .font(.subheadline)
                                         .fontWeight(.bold)
                                         .foregroundColor(.primaryText)

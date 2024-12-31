@@ -13,8 +13,8 @@
 [x] Fix network logging
 [x] Remove duplicate networking calls
 [x] Update error handling for all required edge cases: network failures, empty search results, API errors
-[ ] Show consistent distances - compute manually
-[ ] Test offline funcitonality
+[x] Show consistent distances - compute manually
+[x] Test offline funcitonality
 [ ] Figure out if there is a way I can store the authorization header safely, if not omit it from the project
 [ ] Update the readme
 [ ] Split the single files into View and VM files

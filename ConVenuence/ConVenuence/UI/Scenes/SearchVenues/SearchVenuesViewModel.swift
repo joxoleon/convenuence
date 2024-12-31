@@ -18,9 +18,11 @@ class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
     @Published private(set) var venues: [Venue] = []
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var errorMessage: String?
-    @Published private(set) var currentLocation: CLLocation
 
     // MARK: - Properties
+    public var currentLocation: CLLocation {
+        userLocationService.currentLocation
+    }
     
     private let venueRepositoryService: VenueRepositoryService
     private let userLocationService: UserLocationService
@@ -34,10 +36,11 @@ class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
         userLocationService: UserLocationService,
         debounceInterval: TimeInterval = 0.5
     ) {
+        print("Current Location in SearchVenuesViewModel: \(userLocationService.currentLocation)")
+        
         self.venueRepositoryService = venueRepositoryService
         self.userLocationService = userLocationService
         self.debouncer = Debouncer(delay: debounceInterval)
-        self.currentLocation = userLocationService.currentLocation
         bindSearchQuery()
         bindFavoriteChanges()
     }
@@ -55,8 +58,7 @@ class SearchVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
 
         Task {
             do {
-                let location = currentLocation
-                let fetchedVenues = try await venueRepositoryService.searchVenues(at: location, query: searchQuery)
+                let fetchedVenues = try await venueRepositoryService.searchVenues(at: currentLocation, query: searchQuery)
                 venues = fetchedVenues
                 isLoading = false
             } catch let error as APIClientError {

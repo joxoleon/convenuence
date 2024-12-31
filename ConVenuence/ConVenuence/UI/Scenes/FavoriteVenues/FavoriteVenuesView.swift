@@ -77,7 +77,7 @@ class FavoriteVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
         let sortedFavorites = favorites.sorted { lhs, rhs in
             let distance1 = lhs.distance(from: userLocationService.currentLocation)
             let distance2 = rhs.distance(from: userLocationService.currentLocation)
-            return distance1 < distance2
+            return (distance1 ?? Double.infinity) < (distance2 ?? Double.infinity)
         }
         self.favorites = sortedFavorites
         self.isLoading = false

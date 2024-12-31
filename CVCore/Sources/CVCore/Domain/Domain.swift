@@ -37,7 +37,7 @@ public struct Venue: Codable, Equatable {
         return venueDto.location.formatted_address ?? "Address Unavailable"
     }
     
-    public func distance(from location: CLLocation) -> Double {
+    public func distance(from location: CLLocation) -> Double? {
         return calculateDistanceMeters(from: location, to: venueDto.geocodes.main)
     }
     
@@ -93,16 +93,27 @@ public struct VenueDetail: Codable, Equatable {
     public func categoryIconUrl(resolution: Int) -> URL? {
         return URL(string: (venueDetailDto.categories.first?.icon.prefix ?? "") + "\(resolution)" + (venueDetailDto.categories.first?.icon.suffix ?? ""))
     }
+    
+    public func distance(from location: CLLocation) -> Double? {
+        return calculateDistanceMeters(from: location, to: venueDetailDto.geocodes?.main)
+    }
+    
+    public func distanceString(from location: CLLocation) -> String? {
+        return formatDistance(calculateDistanceMeters(from: location, to: venueDetailDto.geocodes?.main))
+    }
 }
 
 // MARK: - Utility Functions
 
-private func calculateDistanceMeters(from location: CLLocation, to coordinate: FoursquareDTO.Coordinate) -> Double {
+private func calculateDistanceMeters(from location: CLLocation, to coordinate: FoursquareDTO.Coordinate?) -> Double? {
+    guard let coordinate = coordinate else { return nil }
     let venueLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
     return location.distance(from: venueLocation)
 }
 
-private func formatDistance(_ distance: Double) -> String {
+private func formatDistance(_ distance: Double?) -> String {
+    guard let distance = distance else { return "" }
+    
     if distance < 1000 {
         return String(format: "%.0fm", distance) // distance in meters
     } else {
