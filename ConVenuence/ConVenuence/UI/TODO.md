@@ -15,7 +15,7 @@
 [x] Update error handling for all required edge cases: network failures, empty search results, API errors
 [x] Show consistent distances - compute manually
 [x] Test offline funcitonality
-[ ] Figure out if there is a way I can store the authorization header safely, if not omit it from the project
-[ ] Update the readme
+[x] Figure out if there is a way I can store the authorization header safely, if not omit it from the project
+[x] Update the readme
 [ ] Split the single files into View and VM files
 
