@@ -2,6 +2,7 @@ import SwiftUI
 import CoreLocation
 import Combine
 import CVCore
+import Kingfisher
 
 // MARK: - VenueDetailViewModel
 @MainActor
@@ -68,7 +69,10 @@ struct VenueDetailView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 16) {
+        ZStack {
+            Color.primaryBackground
+                .ignoresSafeArea()
+            
             if viewModel.isLoading {
                 CenteredProgressView()
             } else if let errorMessage = viewModel.errorMessage {
@@ -77,10 +81,22 @@ struct VenueDetailView: View {
                     .padding()
             } else if let venueDetail = viewModel.venueDetail {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text(venueDetail.name)
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
+                    VStack(alignment: .leading, spacing: 24) {
+                        // Title and Icon
+                        HStack(spacing: 16) {
+                            if let categoryIconUrl = venueDetail.categoryIconUrl(resolution: 64) {
+                                KFImage(categoryIconUrl)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 64, height: 64)
+                                    .cornerRadius(8)
+                            }
+                            Text(venueDetail.name)
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .foregroundColor(.accentBlue)
+                                .multilineTextAlignment(.leading)
+                        }
 
                         if !venueDetail.description.isEmpty {
                             Text(venueDetail.description)
@@ -88,21 +104,44 @@ struct VenueDetailView: View {
                                 .foregroundColor(.secondary)
                         }
 
-                        HStack {
-                            Image(systemName: "mappin.and.ellipse")
+                        // Address and Distance
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "mappin.and.ellipse")
+                                    .foregroundColor(.accentBlue)
+                                Text(venueDetail.formattedAddress)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondaryText)
+                            }
+
+                            if let location = venueDetail.clLocation {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "location.fill")
+                                        .foregroundColor(.accentBlue)
+                                    Text(viewModel.distanceFromCurrentLocation(to: location))
+                                        .font(.subheadline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.primaryText)
+                                }
+                            }
+                        }
+
+                        // Gallery Section
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Gallery")
+                                .font(.title3)
+                                .fontWeight(.bold)
                                 .foregroundColor(.accentBlue)
-                            Text(venueDetail.formattedAddress)
-                                .font(.subheadline)
-                                .foregroundColor(.primaryText)
+
+                            PhotoGalleryView(photoUrls: venueDetail.photoUrls)
+                                .frame(height: 300)
+                                .cornerRadius(12)
+                                .padding(.horizontal)
+                                .background(Color.cardBackground)
+                                .shadow(radius: 4)
                         }
 
-                        if let location = venueDetail.clLocation {
-                            Text("Distance: \(viewModel.distanceFromCurrentLocation(to: location))")
-                                .font(.subheadline)
-                                .foregroundColor(.primaryText)
-                        }
-
-                        PhotoGalleryView(photoUrls: venueDetail.photoUrls)
+                        Spacer()
                     }
                     .padding()
                 }

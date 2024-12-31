@@ -13,7 +13,6 @@ struct VenueListView: View {
         self.favoriteRepositoryDelegate = favoriteRepositoryDelegate
     }
 
-    // Sort venues by distance for offline access
     var sortedVenues: [Venue] {
         venues.sorted { (v2, v1) -> Bool in
             v1.distance(from: currentLocation) > v2.distance(from: currentLocation)
@@ -31,16 +30,22 @@ struct VenueListView: View {
                     .opacity(0.6)
                 Spacer()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure centering
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView {
                 VStack(spacing: 16) {
-                    ForEach(sortedVenues, id: \.id) { venue in
-                        VenueCellView(
-                            venue: venue,
-                            currentLocation: currentLocation,
-                            favoriteRepositoryDelegate: favoriteRepositoryDelegate
-                        )
+                    ForEach(sortedVenues, id: \ .id) { venue in
+                        NavigationLink(destination: VenueDetailView(viewModel: VenueDetailViewModel(
+                            venueId: venue.id,
+                            venueRepositoryService: ServiceLocator.shared.venueRepositoryService,
+                            userLocationService: ServiceLocator.shared.userLocationService
+                        ))) {
+                            VenueCellView(
+                                venue: venue,
+                                currentLocation: currentLocation,
+                                favoriteRepositoryDelegate: favoriteRepositoryDelegate
+                            )
+                        }
                         .padding(.horizontal)
                     }
                 }

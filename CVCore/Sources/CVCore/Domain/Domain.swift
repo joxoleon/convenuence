@@ -19,7 +19,7 @@ public struct Venue: Codable, Equatable {
         self.init(fsdto: venue.venueDto, isFavorite: isFavorite)
     }
 
-    // MARK: - Computed Properties
+    // MARK: - Utility Computed Properties and Functions
 
     public func categoryIconUrl(resolution: Int) -> URL? {
         return URL(string: (venueDto.categories.first?.icon.prefix ?? "") + "\(resolution)" + (venueDto.categories.first?.icon.suffix ?? ""))
@@ -64,7 +64,7 @@ public struct VenueDetail: Codable, Equatable {
         self.init(fsdto: venueDetail.venueDetailDto, photos: venueDetail.photos, isFavorite: isFavorite)
     }
 
-    // MARK: - Computed Properties
+    // MARK: - Utility Computed Properties and Functions
 
     public var name: String {
         return venueDetailDto.name
@@ -88,6 +88,10 @@ public struct VenueDetail: Codable, Equatable {
         }
         
         return CLLocation(latitude: latitude, longitude: longitude)
+    }
+    
+    public func categoryIconUrl(resolution: Int) -> URL? {
+        return URL(string: (venueDetailDto.categories.first?.icon.prefix ?? "") + "\(resolution)" + (venueDetailDto.categories.first?.icon.suffix ?? ""))
     }
 }
 
