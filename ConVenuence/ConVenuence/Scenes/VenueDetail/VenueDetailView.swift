@@ -54,6 +54,26 @@ class VenueDetailViewModel: ObservableObject {
     }
 }
 
+extension VenueDetailViewModel: FavoriteRepositoryDelegate {
+    func setFavorite(for venueId: VenueId, to isFavorite: Bool) {
+        Task {
+            do {
+                if isFavorite {
+                    try await venueRepositoryService.saveFavorite(venueId: venueId)
+                } else {
+                    try await venueRepositoryService.removeFavorite(venueId: venueId)
+                }
+                if let vd = venueDetail {
+                    self.venueDetail = VenueDetail(venueDetail: vd, isFavorite: isFavorite)
+                }
+            } catch {
+                print("Error setting favorite: \(error)")
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+}
+
 struct VenueDetailView: View {
 
     // MARK: - Properties
@@ -97,6 +117,23 @@ struct VenueDetailView: View {
                                 .foregroundColor(.accentBlue)
                                 .multilineTextAlignment(.leading)
                         }
+                        
+                        SeparatorView()
+                        
+                        // Favorite Start
+                        HStack(spacing: 24) {
+                            FavoriteStarView(
+                                venueId: viewModel.venueDetail?.id ?? "",
+                                isFavorite: viewModel.venueDetail?.isFavorite ?? false,
+                                delegate: viewModel)
+                            .frame(width: 32, height: 32)
+                            
+                            Text("Mark this venue as favorite to have quick aceess to it within the Favorite Venues Screen.")
+                                .font(.subheadline)
+                                .foregroundColor(.secondaryText)
+                        }
+                        
+                        SeparatorView()
 
                         if !venueDetail.description.isEmpty {
                             Text(venueDetail.description)
@@ -105,7 +142,7 @@ struct VenueDetailView: View {
                         }
 
                         // Address and Distance
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 24) {
                             HStack(spacing: 8) {
                                 Image(systemName: "mappin.and.ellipse")
                                     .foregroundColor(.accentBlue)
@@ -126,9 +163,12 @@ struct VenueDetailView: View {
                             }
                         }
 
-                        // Gallery Section
+                        
+                        SeparatorView()
+                        
+                        // Gallery
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Gallery")
+                            Text("Photo Gallery")
                                 .font(.title3)
                                 .fontWeight(.bold)
                                 .foregroundColor(.accentBlue)
@@ -139,9 +179,9 @@ struct VenueDetailView: View {
                                 .padding(.horizontal)
                                 .background(Color.cardBackground)
                                 .shadow(radius: 4)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
 
-                        Spacer()
                     }
                     .padding()
                 }

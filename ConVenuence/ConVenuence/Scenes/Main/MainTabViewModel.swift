@@ -13,7 +13,8 @@ class MainTabViewModel: ObservableObject {
         )
         
         self.favoriteVenuesViewModel = FavoriteVenuesViewModel(
-            venueRepositoryService: ServiceLocator.shared.venueRepositoryService
+            venueRepositoryService: ServiceLocator.shared.venueRepositoryService,
+            userLocationService: ServiceLocator.shared.userLocationService
         )
     }
 }

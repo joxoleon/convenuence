@@ -3,9 +3,9 @@ import CoreLocation
 import Combine
 import CVCore
 
-// MARK: - FavoritesViewModel
 @MainActor
 class FavoriteVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
+
     // MARK: - Bindable Properties
 
     @Published private(set) var favorites: [Venue] = []
@@ -15,12 +15,14 @@ class FavoriteVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
     // MARK: - Properties
 
     private let venueRepositoryService: VenueRepositoryService
+    private let userLocationService: UserLocationService
     private var cancellables: Set<AnyCancellable> = []
 
     // MARK: - Initializer
 
-    init(venueRepositoryService: VenueRepositoryService) {
+    init(venueRepositoryService: VenueRepositoryService, userLocationService: UserLocationService) {
         self.venueRepositoryService = venueRepositoryService
+        self.userLocationService = userLocationService
         bindFavoriteChanges()
     }
 
@@ -54,6 +56,10 @@ class FavoriteVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
             }
         }
     }
+    
+    var currentUserLocation: CLLocation {
+        userLocationService.currentLocation
+    }
 
     // MARK: - Private Methods
 
@@ -67,7 +73,13 @@ class FavoriteVenuesViewModel: ObservableObject, FavoriteRepositoryDelegate {
     }
 
     private func updateFavorites(_ favorites: [Venue]) async {
-        self.favorites = favorites
+        // Sort favorites by distance using userLocationService
+        let sortedFavorites = favorites.sorted { lhs, rhs in
+            let distance1 = lhs.distance(from: userLocationService.currentLocation)
+            let distance2 = rhs.distance(from: userLocationService.currentLocation)
+            return distance1 < distance2
+        }
+        self.favorites = sortedFavorites
         self.isLoading = false
     }
 
@@ -94,46 +106,56 @@ struct FavoriteVenuesView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                // Show loader only if the list is empty and still loading
-                if viewModel.isLoading && viewModel.favorites.isEmpty {
-                    CenteredProgressView()
-                } else if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .padding()
-                } else if viewModel.favorites.isEmpty {
-                    VStack {
-                        Spacer()
-                        Text("No Favorites")
-                            .font(.title3)
-                            .foregroundColor(.accentBlue)
-                            .multilineTextAlignment(.center)
-                            .opacity(0.6)
-                        Spacer()
-                    }
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                            ForEach(viewModel.favorites, id: \.id) { venue in
-                                VenueCellView(
-                                    venue: venue,
-                                    currentLocation: CLLocation(latitude: 0, longitude: 0), // Placeholder location
-                                    favoriteRepositoryDelegate: viewModel // Enable favorites toggling
-                                )
-                                .padding(.horizontal)
-                                .transition(.opacity.combined(with: .slide)) // Smooth transitions
-                            }
+        ZStack {
+            Color.primaryBackground
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                ZStack {
+                    // Show loader only if the list is empty and still loading
+                    if viewModel.isLoading && viewModel.favorites.isEmpty {
+                        CenteredProgressView()
+                    } else if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .padding()
+                    } else if viewModel.favorites.isEmpty {
+                        VStack {
+                            Spacer()
+                            Text("No Favorites")
+                                .font(.title3)
+                                .foregroundColor(.accentBlue)
+                                .multilineTextAlignment(.center)
+                                .opacity(0.6)
+                            Spacer()
                         }
-                        .padding(.top)
+                    } else {
+                        ScrollView {
+                            LazyVStack(spacing: 16) {
+                                ForEach(viewModel.favorites, id: \ .id) { venue in
+                                    NavigationLink(destination: VenueDetailView(viewModel: VenueDetailViewModel(
+                                        venueId: venue.id,
+                                        venueRepositoryService: ServiceLocator.shared.venueRepositoryService,
+                                        userLocationService: ServiceLocator.shared.userLocationService
+                                    ))) {
+                                        VenueCellView(
+                                            venue: venue,
+                                            currentLocation: viewModel.currentUserLocation,
+                                            favoriteRepositoryDelegate: viewModel // Enable favorites toggling
+                                        )
+                                    }
+                                    .padding(.horizontal)
+                                    .transition(.opacity.combined(with: .slide)) // Smooth transitions
+                                }
+                            }
+                            .padding(.top)
+                        }
+                        .animation(.default, value: viewModel.favorites) // Animate changes to the list
                     }
-                    .animation(.default, value: viewModel.favorites) // Animate changes to the list
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onAppear {
             viewModel.fetchFavorites()
         }
@@ -147,7 +169,8 @@ struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
         FavoriteVenuesView(
             viewModel: FavoriteVenuesViewModel(
-                venueRepositoryService: ServiceLocator.shared.venueRepositoryService
+                venueRepositoryService: ServiceLocator.shared.venueRepositoryService,
+                userLocationService: ServiceLocator.shared.userLocationService
             )
         )
     }

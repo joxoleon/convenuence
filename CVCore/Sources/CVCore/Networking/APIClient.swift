@@ -71,7 +71,6 @@ class APIClientImpl: APIClient {
         var attempt = 0
         while attempt <= maxRetries {
             attempt += 1
-            print("[APIClient] Attempt \(attempt): Sending request to \(request.url?.absoluteString ?? "unknown URL")")
 
             do {
                 // Execute the network request
@@ -83,12 +82,10 @@ class APIClientImpl: APIClient {
                     throw APIClientError.invalidResponse(statusCode: -1, responseBody: nil)
                 }
 
-                print("[APIClient] Response status code: \(httpResponse.statusCode)")
                 if httpResponse.statusCode == 200 {
                     do {
                         // Decode the response into the specified type
                         let decodedResponse = try JSONDecoder().decode(responseType, from: data)
-                        print("[APIClient] Decoding successful.")
                         return decodedResponse
                     } catch let decodingError as DecodingError {
                         let responseBody = String(data: data, encoding: .utf8) ?? "No response body"
