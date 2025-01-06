@@ -10,19 +10,16 @@ xcuserdata/
 
 ## Playgrounds
 timeline.xctimeline
-playground.xcworkspace
 
 # Swift Package Manager
 .build/
 Packages/
 Package.pins
 Package.resolved
-*.xcodeproj
 .swiftpm
 
 # CocoaPods
 Pods/
-*.xcworkspace
 
 # Build generated
 build/
@@ -58,4 +55,3 @@ fastlane/test_output
 
 # Code Injection
 iOSInjectionProject/
-
